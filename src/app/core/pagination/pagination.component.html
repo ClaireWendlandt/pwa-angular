@@ -1,0 +1,22 @@
+<div class="pagination">
+   <div>
+       Items from {{ firstNumber }} to {{ endNumber }} of {{pagination.totalItems}}
+   </div>
+   <div class="beforeOrNext">
+       <button 
+           [disabled]="pagination.currentPage === 1"
+           (click)="goToPage(-1)"
+       >
+           Previous page
+       </button>
+       <div class="spaceAround">
+           Page {{ pagination.currentPage }}
+       </div>
+       <button 
+           [disabled]="pagination.currentPage * pagination.itemsPerPage === pagination.totalItems" 
+           (click)="goToPage(1)"
+       >
+           Next page
+       </button>
+   </div>
+</div>

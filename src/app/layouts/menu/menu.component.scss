@@ -1,0 +1,13 @@
+:host {
+   display: flex;
+   justify-content: center;
+   width: 100%;
+}
+div.mat-mdc-tab-list{
+   display: flex !important;
+   justify-content: center; 
+}
+
+div.mat-mdc-tab-labels {
+   max-width: 500px;
+}

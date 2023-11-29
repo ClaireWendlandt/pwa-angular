@@ -1,0 +1,11 @@
+ <nav mat-tab-nav-bar>
+   @for (item of items; track $index) {
+     <a mat-tab-link
+       (click)="goToPage(item.label)"
+       [active]="activeLink == item.label"
+       [disabled]="item.disabled"
+       > 
+         {{item.label}}
+      </a>
+   }
+ </nav>

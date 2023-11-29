@@ -12,7 +12,7 @@ export class CheckForUpdateService {
     const appIsStable$ = appRef.isStable.pipe(
       first((isStable) => isStable === true)
     );
-    const everySixHours$ = interval(1000);
+    const everySixHours$ = interval(100000);
     const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$);
     everySixHoursOnceAppIsStable$.subscribe(async () => {
       try {
