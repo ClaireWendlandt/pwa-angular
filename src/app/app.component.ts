@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CheckForUpdateService } from './services/check-for-update.service';
-import { LogUpdateService } from './services/log-update.service';
-import { PromptUpdateService } from './services/prompt-update.service';
+import { CheckForUpdateService } from './services/checkForUpdate/check-for-update.service';
+import { LogUpdateService } from './services/logUpdate/log-update.service';
+import { PromptUpdateService } from './services/promptUpdate/prompt-update.service';
 
 @Component({
   selector: 'app-root',
