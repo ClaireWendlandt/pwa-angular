@@ -17,17 +17,21 @@ export class DummyJsonService {
     console.log('tessst');
   }
 
-  getProductList(
+  getProductList(limit: number, skip?: number): Observable<AllProductType> {
+    return this.httpClient.get<AllProductType>(
+      `${DummyJsonAPI.ProductListUrl}?limit=${limit}${
+        skip ? `&skip=${skip}` : ''
+      }`
+    );
+  }
+
+  getProductListAndNavigate(
     limit: number,
     skip: number,
     currentPage: number
   ): Observable<AllProductType> {
-    console.log('dummy json');
     this.navigateToFoo(currentPage);
-
-    return this.httpClient.get<AllProductType>(
-      `${DummyJsonAPI.ProductListUrl}?limit=${limit}&skip=${skip}`
-    );
+    return this.getProductList(limit, skip);
   }
 
   getOneProduct(id: number): Observable<ProductType> {

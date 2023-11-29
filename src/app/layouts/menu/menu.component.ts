@@ -26,7 +26,9 @@ export class MenuComponent implements OnInit {
     const currentUrl: string = this.router.url.substring(1);
     this.activeLink =
       this.items[
-        this.items.findIndex((item) => item.label?.toLowerCase() === currentUrl)
+        this.items?.findIndex(
+          (item) => item.label?.toLowerCase() === currentUrl
+        )
       ].label;
   }
 

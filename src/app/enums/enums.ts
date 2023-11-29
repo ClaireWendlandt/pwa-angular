@@ -3,3 +3,5 @@ export enum DummyJsonAPI {
   ProductListEndpoint = 'products',
   ProductListUrl = `${DummyJsonUrl}${ProductListEndpoint}`,
 }
+
+export const productCached = 'productCached';

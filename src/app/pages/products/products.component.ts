@@ -3,12 +3,16 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router } from '@angular/router';
+import { liveQuery } from 'dexie';
+import { catchError, throwError } from 'rxjs';
+import { db } from '../../../database/db';
 import {
   PaginationComponent,
   PaginationType,
 } from '../../core/pagination/pagination.component';
+import { productCached } from '../../enums/enums';
 import { DummyJsonService } from '../../services/api/dummyJson/dummy-json.service';
-import { AllProductType } from '../../type/product.type';
+import { AllProductType, ProductType } from '../../type/product.type';
 
 @Component({
   selector: 'app-products',
@@ -26,13 +30,15 @@ export class ProductsComponent implements OnInit {
 
   allProducts?: AllProductType;
 
+  productCached$ = liveQuery(() => db.productCached.toArray());
+
   constructor(
     private dummyJsonService: DummyJsonService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.route.queryParams.subscribe((params) => {
       let pageNumber = parseInt(params['page'] || this.pagination.currentPage);
 
@@ -43,8 +49,6 @@ export class ProductsComponent implements OnInit {
         pageNumber = 1;
       }
       this.pagination.currentPage = pageNumber;
-      console.log('pagination :', this.pagination);
-      console.log('page number :', pageNumber);
       this.getAllProducts();
     });
   }
@@ -58,15 +62,41 @@ export class ProductsComponent implements OnInit {
       this.pagination.currentPage === 1
         ? 0
         : this.pagination.itemsPerPage * (this.pagination.currentPage - 1);
-    console.log('proooooduct ');
     this.dummyJsonService
-      .getProductList(
+      .getProductListAndNavigate(
         this.pagination.itemsPerPage,
         skip,
         this.pagination.currentPage
       )
-      .subscribe((response) => {
+      .pipe(
+        catchError(({ status }) => {
+          if (status !== 200) {
+            this.productCached$.subscribe((cachedProducts) => {
+              this.allProducts = {
+                total: 10,
+                limit: 10,
+                products: cachedProducts,
+              };
+              this.pagination.totalItems = 10;
+              this.pagination.currentPage = 1;
+            });
+          }
+          return throwError(status);
+        })
+      )
+      .subscribe(async (response) => {
         this.allProducts = response;
+
+        if ((await db.countTableLines(productCached)) === 0 && skip === 0) {
+          await db.deleteTableLines(productCached);
+          await db.bulkAddTableLines(
+            productCached,
+            response.products as ProductType[]
+          );
+        }
+        this.productCached$.subscribe((cachedProducts) => {
+          console.log('cached products:', cachedProducts);
+        });
       });
   }
 
