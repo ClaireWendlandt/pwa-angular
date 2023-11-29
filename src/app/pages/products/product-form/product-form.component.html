@@ -1,0 +1,24 @@
+
+<form (ngSubmit)="submitProduct()" class="productForm" formGroup="productForm">
+   <div>
+      Title :
+      <input type="text" pInputText class="p-inputtext-sm" formControlName="title"/>
+   </div>
+   <div>
+      Description :
+      <input type="text" pInputText class="p-inputtext-sm" formControlName="description"/>
+   </div>
+   <div>
+      Category :
+      <input type="text" pInputText class="p-inputtext-sm" formControlName="category"/>
+   </div>
+   <div>
+      Price :
+      <input type="number" pInputText class="p-inputtext-sm" formControlName="price"/>
+   </div>
+   <div>
+      Image :
+      <input type="text" pInputText class="p-inputtext-sm" formControlName="image"/>
+   </div>
+   <button mat-raised-button [disabled]="!productForm.valid" type="submit">Submit</button>
+</form>

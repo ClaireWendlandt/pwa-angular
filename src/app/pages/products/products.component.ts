@@ -103,4 +103,7 @@ export class ProductsComponent implements OnInit {
   goToProduct(id: number): void {
     this.router.navigate(['/product', id]);
   }
+  goToProductForm(): void {
+    this.router.navigate(['/add-product']);
+  }
 }

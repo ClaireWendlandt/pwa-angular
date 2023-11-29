@@ -1,3 +1,5 @@
+import { FormControl } from '@angular/forms';
+
 export type AllProductType = {
   total: number;
   limit: number;
@@ -5,7 +7,7 @@ export type AllProductType = {
 };
 
 export type ProductType = {
-  id: number;
+  id?: number;
   title: string;
   description: string;
   category: string;
@@ -14,3 +16,11 @@ export type ProductType = {
 };
 
 export type ProductImage = string[];
+
+export type ProductFormType = {
+  title: FormControl<string | null>;
+  description: FormControl<string | null>;
+  category: FormControl<string | null>;
+  price: FormControl<string | null>;
+  images: FormControl<[] | null>;
+};

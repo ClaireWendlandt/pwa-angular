@@ -49,4 +49,25 @@ export class DummyJsonService {
       queryParamsHandling: 'merge',
     });
   }
+
+  postProduct(productValues: ProductType, productId?: number): boolean {
+    try {
+      if (productId !== undefined && productId >= 0) {
+        // this.productValues.push((value) => {
+        //   value[userId] = userValues
+        //   return value;
+        // })
+      } else {
+        // this.usersSignal.update((value) => [...value, userValues]);
+      }
+      // this.localStorageService.setItem(
+      //   'users',
+      //   JSON.stringify(this.usersSignal())
+      // );
+      return true;
+    } catch {
+      console.log('An error occured, please retry');
+      return false;
+    }
+  }
 }
