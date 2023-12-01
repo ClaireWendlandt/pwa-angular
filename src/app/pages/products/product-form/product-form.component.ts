@@ -83,15 +83,26 @@ export class ProductFormComponent {
     });
   }
 
-  initForm({ title, description, category, price, images }: ProductType) {
+  initForm({
+    title,
+    description,
+    category,
+    price,
+    images,
+    localDbId,
+  }: ProductType) {
     if (this.productId) {
       this.productForm.addControl('id', new FormControl(this.productId));
+    }
+    if (localDbId) {
+      this.productForm.addControl('localDbId', new FormControl(localDbId));
     }
     this.productForm.patchValue({
       title,
       description,
       category,
       price,
+      // TODO :: gérer le formats des images plus tard
       // images: [images]
     });
   }

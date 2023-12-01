@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import { ProductType } from '../app/type/product.type';
+import { LocalDbType, ProductType } from '../app/type/product.type';
 
 export class AppDB extends Dexie {
   productCached!: Table<ProductType>;
@@ -54,12 +54,11 @@ export class AppDB extends Dexie {
 
   async updateTableLines<Type>(
     tableName: string,
-    id: string,
-    item: Type & { pushMethodPWA?: 'PUT' }
+    item: Type & LocalDbType & { pushMethodPWA?: 'PUT' }
   ): Promise<void> {
     // remove this later, but really usefull for the moment for read datas and understand what's happening
     item.pushMethodPWA = 'PUT';
-    this.table(tableName).update(id, { id: item });
+    this.table(tableName).update(item.localDbId, { localDbId: item });
   }
 }
 

@@ -70,16 +70,12 @@ export class DummyJsonService {
           .pipe(
             catchError(({ status }) => {
               this.waitingProduct$.subscribe(() => {
-                db.addTableLines(waitingProduct, productValues);
+                if (productValues.localDbId) {
+                  db.updateTableLines(waitingProduct, productId);
+                } else {
+                  db.addTableLines(waitingProduct, productValues);
+                }
               });
-              // this.productCached$.subscribe((products) => {
-              //   console.log('products :', productCached);
-              //   // TODO
-              //   // IF    :: si productID existe dejà dans la liste des produits mis en cache (productCached$)
-              //   // ALORS :: je fais updateTableLines() pour l'updater
-              //   // SINON :: je fais un addTableLines() pour l'ajouter aux produits mis en cache
-              //   db.addTableLines(productCached, productValues);
-              // });
 
               return throwError(status);
             })

@@ -1,4 +1,5 @@
 import { FormControl } from '@angular/forms';
+import { LocalDbFormType, LocalDbType } from './db.type';
 
 export type AllProductType = {
   total: number;
@@ -13,7 +14,7 @@ export type ProductType = {
   category: string;
   price: string;
   images: ProductImage;
-};
+} & LocalDbType;
 
 export type ProductImage = string[];
 
@@ -24,4 +25,4 @@ export type ProductFormType = {
   category: FormControl<string | null>;
   price: FormControl<string | null>;
   images: FormControl<[] | string | null>;
-};
+} & LocalDbFormType;
