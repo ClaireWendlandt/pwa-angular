@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import {
   FormControl,
@@ -9,6 +10,11 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ActivatedRoute, Router } from '@angular/router';
+import { liveQuery } from 'dexie';
+import { catchError, throwError } from 'rxjs';
+import { db } from '../../../../database/db';
+import { productCached } from '../../../enums/enums';
 import { DummyJsonService } from '../../../services/api/dummyJson/dummy-json.service';
 import { ProductFormType, ProductType } from '../../../type/product.type';
 
@@ -26,7 +32,8 @@ import { ProductFormType, ProductType } from '../../../type/product.type';
   styleUrl: './product-form.component.scss',
 })
 export class ProductFormComponent {
-  constructor(private dummyJsonService: DummyJsonService) {}
+  productCached$ = liveQuery(() => db.productCached.toArray());
+  productId?: string;
 
   productForm: FormGroup<ProductFormType> = new FormGroup<ProductFormType>({
     title: new FormControl('', [Validators.minLength(6), Validators.required]),
@@ -42,7 +49,52 @@ export class ProductFormComponent {
     images: new FormControl('', [Validators.required]),
   });
 
-  submitProduct() {
+  constructor(
+    private dummyJsonService: DummyJsonService,
+    private httpClient: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
+    this.route.params.subscribe((params) => {
+      this.productId = params['id'];
+
+      if (this.productId) {
+        dummyJsonService
+          .getOneProduct(this.productId)
+          .pipe(
+            catchError(({ status }) => {
+              if (status !== 200) {
+                this.productCached$.subscribe(async () => {
+                  this.initForm(
+                    await db.getTableLine(
+                      productCached,
+                      this.productId as string
+                    )
+                  );
+                });
+              }
+              return throwError(status);
+            })
+          )
+          .subscribe((product) => {
+            this.initForm(product);
+          });
+      }
+    });
+  }
+
+  initForm({ title, description, category, price, images }: ProductType) {
+    console.log('title:', title);
+    this.productForm.patchValue({
+      title,
+      description,
+      category,
+      price,
+      // images: [images]
+    });
+  }
+
+  async submitProduct() {
     if (
       this.dummyJsonService.postProduct(this.productForm.value as ProductType)
     ) {

@@ -27,24 +27,9 @@ export class DummyJsonService {
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
   getOneProduct(id: string) {
-    return this.httpClient
-      .get<ProductType>(`${DummyJsonAPI.ProductListUrl}/${id}`)
-      .pipe(
-        catchError(({ status }) => {
-          if (status !== 200) {
-            this.productCached$.subscribe(() => {
-              // TODO revoir le typage
-              const productLine = db.getTableLine(productCached, id);
-              console.log('product line :', productLine);
-            });
-          }
-          return throwError(status);
-        })
-      )
-      .subscribe((response) => {
-        console.log('response :', response);
-        return response as ProductType;
-      });
+    return this.httpClient.get<ProductType>(
+      `${DummyJsonAPI.ProductListUrl}/${id}`
+    );
   }
 
   getProductList(limit: number, skip?: number): Observable<AllProductType> {
