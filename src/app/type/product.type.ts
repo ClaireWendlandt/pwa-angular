@@ -18,6 +18,7 @@ export type ProductType = {
 export type ProductImage = string[];
 
 export type ProductFormType = {
+  id?: FormControl<string | number | null>;
   title: FormControl<string | null>;
   description: FormControl<string | null>;
   category: FormControl<string | null>;

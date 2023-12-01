@@ -3,18 +3,26 @@ import { ProductType } from '../app/type/product.type';
 
 export class AppDB extends Dexie {
   productCached!: Table<ProductType>;
-  waitingProduct!: Table<ProductType>;
+  waitingProduct!: Table<ProductType & { localDbId: number }>;
 
   constructor() {
     super('ngdexieliveQuery');
-    this.version(5).stores({
+    // this.recreateDB();
+    this.version(1).stores({
       productCached: '++id',
-      waitingProduct: '++id',
+      waitingProduct: '++localDbId',
     });
   }
 
-  async getTableLine<Type>(tableName: string, id: string): Promise<Type> {
-    const tableLine = await this.table(tableName).get(parseInt(id));
+  /**
+   * in case I need to reinitialize all my database
+   */
+  recreateDB() {
+    return this.delete().then(() => this.open());
+  }
+
+  async getTableLine<Type>(tableName: string, id: number): Promise<Type> {
+    const tableLine = await this.table(tableName).get(id);
     console.log('table line :', tableLine);
     return tableLine;
   }
@@ -35,15 +43,22 @@ export class AppDB extends Dexie {
     this.table(tableName).bulkAdd(items);
   }
 
-  async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
+  async addTableLines<Type>(
+    tableName: string,
+    item: Type & { pushMethodPWA?: 'POST' }
+  ): Promise<void> {
+    // remove this later, but really usefull for the moment for read datas and understand what's happening
+    item.pushMethodPWA = 'POST';
     this.table(tableName).add(item);
   }
 
   async updateTableLines<Type>(
     tableName: string,
     id: string,
-    item: Type
+    item: Type & { pushMethodPWA?: 'PUT' }
   ): Promise<void> {
+    // remove this later, but really usefull for the moment for read datas and understand what's happening
+    item.pushMethodPWA = 'PUT';
     this.table(tableName).update(id, { id: item });
   }
 }

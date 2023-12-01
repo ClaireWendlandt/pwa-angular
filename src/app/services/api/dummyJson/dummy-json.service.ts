@@ -4,11 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { Observable, catchError, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import {
-  DummyJsonAPI,
-  productCached,
-  waitingProduct,
-} from '../../../enums/enums';
+import { DummyJsonAPI, waitingProduct } from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
 
 @Injectable({
@@ -26,7 +22,7 @@ export class DummyJsonService {
   productCached$ = liveQuery(() => db.productCached.toArray());
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
-  getOneProduct(id: string) {
+  getOneProduct(id: string | number) {
     return this.httpClient.get<ProductType>(
       `${DummyJsonAPI.ProductListUrl}/${id}`
     );
@@ -59,8 +55,12 @@ export class DummyJsonService {
     });
   }
 
-  postProduct(productValues: ProductType, productId = undefined): boolean {
+  postProduct(
+    productValues: ProductType,
+    productId: number | undefined = undefined
+  ): boolean {
     try {
+      // If there is already and id, it's an update
       if (productId !== undefined && productId >= 0) {
         this.httpClient
           .put<ProductType>(
@@ -69,23 +69,23 @@ export class DummyJsonService {
           )
           .pipe(
             catchError(({ status }) => {
-              if (status !== 200) {
-                this.waitingProduct$.subscribe(() => {
-                  db.addTableLines(waitingProduct, productValues);
-                });
-                this.productCached$.subscribe((products) => {
-                  console.log('products :', productCached);
-                  // TODO
-                  // IF    :: si productID existe dejà dans la liste des produits mis en cache (productCached$)
-                  // ALORS :: je fais updateTableLines() pour l'updater
-                  // SINON :: je fais un addTableLines() pour l'ajouter aux produits mis en cache
-                  db.addTableLines(productCached, productValues);
-                });
-              }
+              this.waitingProduct$.subscribe(() => {
+                db.addTableLines(waitingProduct, productValues);
+              });
+              // this.productCached$.subscribe((products) => {
+              //   console.log('products :', productCached);
+              //   // TODO
+              //   // IF    :: si productID existe dejà dans la liste des produits mis en cache (productCached$)
+              //   // ALORS :: je fais updateTableLines() pour l'updater
+              //   // SINON :: je fais un addTableLines() pour l'ajouter aux produits mis en cache
+              //   db.addTableLines(productCached, productValues);
+              // });
+
               return throwError(status);
             })
           )
           .subscribe();
+        // no id, it's a create
       } else {
         this.httpClient
           .post<ProductType>(`${DummyJsonAPI.ProductAdd}`, productValues)
@@ -95,9 +95,6 @@ export class DummyJsonService {
               if (status !== 200) {
                 this.waitingProduct$.subscribe(() => {
                   db.addTableLines(waitingProduct, productValues);
-                });
-                this.productCached$.subscribe(() => {
-                  db.addTableLines(productCached, productValues);
                 });
               }
               return throwError(status);

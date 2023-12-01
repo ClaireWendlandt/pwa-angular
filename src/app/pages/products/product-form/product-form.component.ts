@@ -33,7 +33,7 @@ import { ProductFormType, ProductType } from '../../../type/product.type';
 })
 export class ProductFormComponent {
   productCached$ = liveQuery(() => db.productCached.toArray());
-  productId?: string;
+  productId?: number;
 
   productForm: FormGroup<ProductFormType> = new FormGroup<ProductFormType>({
     title: new FormControl('', [Validators.minLength(6), Validators.required]),
@@ -56,7 +56,7 @@ export class ProductFormComponent {
     private route: ActivatedRoute
   ) {
     this.route.params.subscribe((params) => {
-      this.productId = params['id'];
+      this.productId = parseInt(params['id']);
 
       if (this.productId) {
         dummyJsonService
@@ -68,7 +68,7 @@ export class ProductFormComponent {
                   this.initForm(
                     await db.getTableLine(
                       productCached,
-                      this.productId as string
+                      this.productId as number
                     )
                   );
                 });
@@ -84,7 +84,9 @@ export class ProductFormComponent {
   }
 
   initForm({ title, description, category, price, images }: ProductType) {
-    console.log('title:', title);
+    if (this.productId) {
+      this.productForm.addControl('id', new FormControl(this.productId));
+    }
     this.productForm.patchValue({
       title,
       description,
@@ -99,6 +101,11 @@ export class ProductFormComponent {
       this.dummyJsonService.postProduct(this.productForm.value as ProductType)
     ) {
       this.productForm.reset();
+      this.goToProducts();
     }
+  }
+
+  goToProducts(): void {
+    this.router.navigate(['/products']);
   }
 }
