@@ -86,24 +86,21 @@ export class ProductsComponent implements OnInit {
       )
       .subscribe(async (response) => {
         this.allProducts = response;
-
-        if ((await db.countTableLines(productCached)) === 0 && skip === 0) {
-          await db.deleteTableLines(productCached);
-          await db.bulkAddTableLines(
-            productCached,
-            response.products as ProductType[]
-          );
-        }
+        await db.deleteTableLines(productCached);
+        await db.bulkAddTableLines(
+          productCached,
+          response.products as ProductType[]
+        );
         this.productCached$.subscribe((cachedProducts) => {
           console.log('cached products:', cachedProducts);
         });
       });
   }
 
-  goToProduct(id: number): void {
+  goToProduct(id: string | number): void {
     this.router.navigate(['/product', id]);
   }
-  goToProductForm(): void {
-    this.router.navigate(['/add-product']);
+  goToProductForm(productId?: number | string): void {
+    this.router.navigate([`/product-form${productId ? `/${productId}` : ''}`]);
   }
 }

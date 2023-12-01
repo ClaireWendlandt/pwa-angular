@@ -1,8 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { DummyJsonAPI } from '../../../enums/enums';
+import { liveQuery } from 'dexie';
+import { Observable, catchError, throwError } from 'rxjs';
+import { db } from '../../../../database/db';
+import {
+  DummyJsonAPI,
+  productCached,
+  waitingProduct,
+} from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
 
 @Injectable({
@@ -15,6 +21,30 @@ export class DummyJsonService {
     private route: ActivatedRoute
   ) {
     console.log('tessst');
+  }
+
+  productCached$ = liveQuery(() => db.productCached.toArray());
+  waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
+
+  getOneProduct(id: string) {
+    return this.httpClient
+      .get<ProductType>(`${DummyJsonAPI.ProductListUrl}/${id}`)
+      .pipe(
+        catchError(({ status }) => {
+          if (status !== 200) {
+            this.productCached$.subscribe(() => {
+              // TODO revoir le typage
+              const productLine = db.getTableLine(productCached, id);
+              console.log('product line :', productLine);
+            });
+          }
+          return throwError(status);
+        })
+      )
+      .subscribe((response) => {
+        console.log('response :', response);
+        return response as ProductType;
+      });
   }
 
   getProductList(limit: number, skip?: number): Observable<AllProductType> {
@@ -34,12 +64,6 @@ export class DummyJsonService {
     return this.getProductList(limit, skip);
   }
 
-  getOneProduct(id: number): Observable<ProductType> {
-    return this.httpClient.get<ProductType>(
-      `${DummyJsonAPI.ProductListUrl}/${id}`
-    );
-  }
-
   navigateToFoo(currentPage: number): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -50,20 +74,56 @@ export class DummyJsonService {
     });
   }
 
-  postProduct(productValues: ProductType, productId?: number): boolean {
+  postProduct(productValues: ProductType, productId = undefined): boolean {
     try {
       if (productId !== undefined && productId >= 0) {
-        // this.productValues.push((value) => {
-        //   value[userId] = userValues
-        //   return value;
-        // })
+        this.httpClient
+          .put<ProductType>(
+            `${DummyJsonAPI.ProductListUrl}${productId}`,
+            productValues
+          )
+          .pipe(
+            catchError(({ status }) => {
+              if (status !== 200) {
+                this.waitingProduct$.subscribe(() => {
+                  db.addTableLines(
+                    waitingProduct,
+                    productValues,
+                    `update-${productId}`
+                  );
+                });
+                this.productCached$.subscribe((products) => {
+                  console.log('products :', productCached);
+                  // TODO
+                  // IF    :: si productID existe dejà dans la liste des produits mis en cache (productCached$)
+                  // ALORS :: je fais updateTableLines() pour l'updater
+                  // SINON :: je fais un addTableLines() pour l'ajouter aux produits mis en cache
+                  db.addTableLines(productCached, productValues);
+                });
+              }
+              return throwError(status);
+            })
+          )
+          .subscribe();
       } else {
-        // this.usersSignal.update((value) => [...value, userValues]);
+        this.httpClient
+          .post<ProductType>(`${DummyJsonAPI.ProductAdd}`, productValues)
+          .pipe(
+            catchError(({ status }) => {
+              console.log('test333', status);
+              if (status !== 200) {
+                this.waitingProduct$.subscribe(() => {
+                  db.addTableLines(waitingProduct, productValues);
+                });
+                this.productCached$.subscribe(() => {
+                  db.addTableLines(productCached, productValues);
+                });
+              }
+              return throwError(status);
+            })
+          )
+          .subscribe();
       }
-      // this.localStorageService.setItem(
-      //   'users',
-      //   JSON.stringify(this.usersSignal())
-      // );
       return true;
     } catch {
       console.log('An error occured, please retry');

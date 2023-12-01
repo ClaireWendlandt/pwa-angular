@@ -25,9 +25,14 @@ export const routes: Routes = [
         title: 'Products',
       },
       {
-        path: 'add-product',
+        path: 'product-form',
         component: ProductFormComponent,
         title: 'Add a product',
+      },
+      {
+        path: 'product-form/:id',
+        component: ProductFormComponent,
+        title: 'Update a product',
       },
     ],
   },

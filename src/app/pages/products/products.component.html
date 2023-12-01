@@ -24,7 +24,7 @@
                <p>{{ product.price }}</p>
             </mat-card-content>
             <mat-card-actions>
-               <button mat-button>Update</button>
+               <button (click)="goToProductForm(product.id)" mat-button>Update</button>
             </mat-card-actions>
          </mat-card>
       }
