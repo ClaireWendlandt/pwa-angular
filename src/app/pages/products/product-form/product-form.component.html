@@ -1,24 +1,35 @@
-
-<form (ngSubmit)="submitProduct()" class="productForm" formGroup="productForm">
-   <div>
-      Title :
-      <input type="text" pInputText class="p-inputtext-sm" formControlName="title"/>
-   </div>
-   <div>
-      Description :
-      <input type="text" pInputText class="p-inputtext-sm" formControlName="description"/>
-   </div>
-   <div>
-      Category :
-      <input type="text" pInputText class="p-inputtext-sm" formControlName="category"/>
-   </div>
-   <div>
-      Price :
-      <input type="number" pInputText class="p-inputtext-sm" formControlName="price"/>
-   </div>
-   <div>
-      Image :
-      <input type="text" pInputText class="p-inputtext-sm" formControlName="image"/>
-   </div>
-   <button mat-raised-button [disabled]="!productForm.valid" type="submit">Submit</button>
-</form>
+<h3 class="title">Add or update form</h3>
+<form class="product-form" [formGroup]="productForm" (ngSubmit)="submitProduct()">
+   <mat-form-field class="product-form-field">
+     <mat-label>Title</mat-label>
+     <input type="text" matInput matInput formControlName="title">
+     <mat-error *ngIf="productForm.get('title')?.hasError('required')">Title is required</mat-error>
+   </mat-form-field>
+ 
+   <mat-form-field class="product-form-field">
+     <mat-label>Description</mat-label>
+     <input matInput formControlName="description">
+     <mat-error *ngIf="productForm.get('description')?.hasError('required')">Description is required</mat-error>
+   </mat-form-field>
+ 
+   <mat-form-field class="product-form-field">
+     <mat-label>Category</mat-label>
+     <input matInput formControlName="category">
+     <mat-error *ngIf="productForm.get('category')?.hasError('required')">Category is required</mat-error>
+   </mat-form-field>
+ 
+   <mat-form-field class="product-form-field">
+     <mat-label>Price</mat-label>
+     <input matInput formControlName="price">
+     <mat-error *ngIf="productForm.get('price')?.hasError('required')">Price is required</mat-error>
+   </mat-form-field>
+ 
+   <mat-form-field class="product-form-field">
+     <mat-label>Images</mat-label>
+     <input matInput formControlName="images">
+     <mat-error *ngIf="productForm.get('images')?.hasError('required')">Images are required</mat-error>
+   </mat-form-field>
+ 
+   <button mat-raised-button type="submit">Submit</button>
+ </form>
+ 

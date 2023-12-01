@@ -1,14 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { DummyJsonService } from '../../../services/api/dummyJson/dummy-json.service';
 import { ProductFormType, ProductType } from '../../../type/product.type';
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+  ],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })
@@ -26,7 +39,7 @@ export class ProductFormComponent {
       Validators.required,
     ]),
     price: new FormControl('', [Validators.required]),
-    images: new FormControl([], [Validators.required]),
+    images: new FormControl('', [Validators.required]),
   });
 
   submitProduct() {

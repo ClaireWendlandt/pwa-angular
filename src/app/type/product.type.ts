@@ -7,7 +7,7 @@ export type AllProductType = {
 };
 
 export type ProductType = {
-  id?: number;
+  id?: number | string;
   title: string;
   description: string;
   category: string;
@@ -22,5 +22,5 @@ export type ProductFormType = {
   description: FormControl<string | null>;
   category: FormControl<string | null>;
   price: FormControl<string | null>;
-  images: FormControl<[] | null>;
+  images: FormControl<[] | string | null>;
 };
