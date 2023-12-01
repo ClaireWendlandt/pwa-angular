@@ -86,11 +86,7 @@ export class DummyJsonService {
             catchError(({ status }) => {
               if (status !== 200) {
                 this.waitingProduct$.subscribe(() => {
-                  db.addTableLines(
-                    waitingProduct,
-                    productValues,
-                    `update-${productId}`
-                  );
+                  db.addTableLines(waitingProduct, productValues);
                 });
                 this.productCached$.subscribe((products) => {
                   console.log('products :', productCached);
