@@ -113,10 +113,7 @@ export class ProductFormComponent implements OnDestroy {
 
   initForm(product: ProductType) {
     const { title, description, category, price, images, localDbId } = product;
-    // await db.getTableLine(
-    //   productCached,
-    //   this.productId as number
-    // )
+
     if (this.productId) {
       this.productForm.addControl('id', new FormControl(this.productId));
     }
