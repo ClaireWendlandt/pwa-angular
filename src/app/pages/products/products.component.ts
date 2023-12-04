@@ -1,10 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  WritableSignal,
+  effect,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
-import { catchError, throwError } from 'rxjs';
 import { db } from '../../../database/db';
 import {
   PaginationComponent,
@@ -31,6 +36,11 @@ export class ProductsComponent implements OnInit {
   allProducts?: AllProductType;
 
   productCached$ = liveQuery(() => db.productCached.toArray());
+  productCachedList: WritableSignal<ProductType[]> = signal([]);
+  waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
+  waitingProductList: WritableSignal<ProductType[]> = signal([]);
+
+  displayProduct?: ProductType[];
 
   constructor(
     private productService: ProductService,
@@ -50,30 +60,41 @@ export class ProductsComponent implements OnInit {
       }
       this.pagination.currentPage = pageNumber;
       this.getAllProducts();
+
       console.log('allProducts', this.allProducts);
     });
+
+    this.productCached$.subscribe((products) => {
+      this.productCachedList.set(products);
+    });
+
+    this.waitingProduct$.subscribe((products) => {
+      this.waitingProductList.set(products);
+    });
   }
+  private mergeProducts = effect(() => {
+    const newProductsList: ProductType[] = [...this.productCachedList()];
+    this.waitingProductList().forEach((wp) => {
+      const index = this.productCachedList().findIndex(
+        (product) => wp.id === product.id
+      );
+
+      index !== -1 ? (newProductsList[index] = wp) : newProductsList.push(wp);
+    });
+    this.allProducts = {
+      total: newProductsList.length,
+      limit: newProductsList.length,
+      products: newProductsList,
+    };
+  });
 
   pageChange(): void {
     this.getAllProducts();
   }
 
-  async errorAllProduct() {
-    this.productCached$.subscribe((products) => {
-      this.allProducts = {
-        total: products.length,
-        limit: products.length,
-        products: products,
-      };
-      console.log('allProducts bis bis', this.allProducts);
-      this.pagination.totalItems = products.length;
-      this.pagination.itemsPerPage = products.length;
-      this.pagination.currentPage = 1;
-    });
-  }
-
   async successResponse(response: AllProductType) {
     this.allProducts = response as AllProductType;
+    console.log('sucess response:');
     await db.deleteTableLines(productCached);
     await db.bulkAddTableLines(
       productCached,
@@ -92,12 +113,6 @@ export class ProductsComponent implements OnInit {
         skip,
         this.pagination.currentPage
       )
-      .pipe(
-        catchError((error) => {
-          this.errorAllProduct();
-          return throwError(error);
-        })
-      )
       .subscribe((response) => {
         this.successResponse(response);
       });
@@ -107,7 +122,23 @@ export class ProductsComponent implements OnInit {
   goToProduct(id: string | number): void {
     this.router.navigate(['/product', id]);
   }
-  goToProductForm(productId?: number | string): void {
-    this.router.navigate([`/product-form${productId ? `/${productId}` : ''}`]);
+
+  goToProductForm(
+    productId?: number | string,
+    isPendingProduct: boolean = false
+  ): void {
+    console.log('ispendingproduct:', isPendingProduct);
+    if (isPendingProduct) {
+      this.router.navigate(
+        [`/product-form${productId ? `/${productId}` : ''}`],
+        {
+          queryParams: { isPendingProduct },
+        }
+      );
+    } else {
+      this.router.navigate([
+        `/product-form${productId ? `/${productId}` : ''}`,
+      ]);
+    }
   }
 }

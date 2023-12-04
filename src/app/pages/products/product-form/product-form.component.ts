@@ -36,6 +36,7 @@ export class ProductFormComponent implements OnDestroy {
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
   productId?: number;
+  isPendingProduct: boolean = false;
 
   productForm: FormGroup<ProductFormType> = new FormGroup<ProductFormType>({
     title: new FormControl('', [Validators.minLength(6), Validators.required]),
@@ -57,6 +58,11 @@ export class ProductFormComponent implements OnDestroy {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    this.route.queryParams.subscribe((params) => {
+      this.isPendingProduct = params['isPendingProduct'];
+
+      console.log('isPendingProduct:', this.isPendingProduct);
+    });
     this.route.params.subscribe((params) => {
       this.productId = parseInt(params['id']);
       if (this.productId) {
@@ -66,26 +72,7 @@ export class ProductFormComponent implements OnDestroy {
             take(1),
             catchError(async ({ status }) => {
               if (status !== 200) {
-                const product = await db.getTableLineByWhere<ProductType>(
-                  waitingProduct,
-                  'id',
-                  this.productId as number
-                );
-                setTimeout(async () => {
-                  if (product) {
-                    this.initForm(product);
-                  } else {
-                    const cachedProduct = await db.getTableLine<ProductType>(
-                      productCached,
-                      this.productId as number
-                    );
-                    if (cachedProduct) {
-                      setTimeout(() => {
-                        this.initForm(cachedProduct);
-                      }, 10);
-                    }
-                  }
-                }, 100);
+                this.usePendingDatas();
               }
               return throwError(status);
             })
@@ -95,6 +82,30 @@ export class ProductFormComponent implements OnDestroy {
           });
       }
     });
+  }
+
+  async usePendingDatas() {
+    const product = await db.getTableLineByWhere<ProductType>(
+      waitingProduct,
+      this.isPendingProduct ? 'localDbId' : 'id',
+      this.productId as number
+    );
+
+    setTimeout(async () => {
+      if (product) {
+        this.initForm(product);
+      } else {
+        const cachedProduct = await db.getTableLine<ProductType>(
+          productCached,
+          this.productId as number
+        );
+        if (cachedProduct) {
+          setTimeout(() => {
+            this.initForm(cachedProduct);
+          }, 10);
+        }
+      }
+    }, 100);
   }
 
   ngOnDestroy(): void {

@@ -8,8 +8,8 @@
 
 <div class="allCards">
    @for (product of allProducts?.products; track product) {
-      @if (product.id) {
-         <mat-card class="card" (click)="goToProduct(product.id)">
+      @if (product.id || product.localDbId) {
+         <mat-card class="card" (click)="goToProduct(product.id || product.localDbId || 0)">
             <mat-card-header>
                <mat-card-title class="title">{{ product.title }}</mat-card-title>
             </mat-card-header>
@@ -24,7 +24,12 @@
                <p>{{ product.price }}</p>
             </mat-card-content>
             <mat-card-actions>
-               <button (click)="goToProductForm(product.id)" mat-button>Update</button>
+               @if(product.id){
+                  <button (click)="goToProductForm(product.id)" mat-button>Update</button>
+               } @else {
+                  <button (click)="goToProductForm(product.localDbId, true)" mat-button>Update</button>
+               }
+              
             </mat-card-actions>
          </mat-card>
       }
