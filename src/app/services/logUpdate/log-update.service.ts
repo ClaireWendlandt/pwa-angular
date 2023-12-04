@@ -4,7 +4,6 @@ import { SwUpdate } from '@angular/service-worker';
 @Injectable({ providedIn: 'root' })
 export class LogUpdateService {
   constructor(updates: SwUpdate) {
-    console.log('yooo dedd ldlldk');
     updates.versionUpdates.subscribe((evt) => {
       switch (evt.type) {
         case 'VERSION_DETECTED':

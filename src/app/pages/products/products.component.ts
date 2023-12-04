@@ -39,7 +39,7 @@ export class ProductsComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.subscribe(async (params) => {
       let pageNumber = parseInt(params['page'] || this.pagination.currentPage);
 
       if (
@@ -57,6 +57,28 @@ export class ProductsComponent implements OnInit {
     this.getAllProducts();
   }
 
+  async errorAllProduct() {
+    this.productCached$.subscribe((products) => {
+      this.allProducts = {
+        total: products.length,
+        limit: products.length,
+        products: products,
+      };
+      this.pagination.totalItems = products.length;
+      this.pagination.itemsPerPage = products.length;
+      this.pagination.currentPage = 1;
+    });
+  }
+
+  async successResponse(response: AllProductType) {
+    this.allProducts = response as AllProductType;
+    await db.deleteTableLines(productCached);
+    await db.bulkAddTableLines(
+      productCached,
+      this.allProducts?.products as ProductType[]
+    );
+  }
+
   public getAllProducts(): void {
     const skip =
       this.pagination.currentPage === 1
@@ -69,31 +91,13 @@ export class ProductsComponent implements OnInit {
         this.pagination.currentPage
       )
       .pipe(
-        catchError(({ status }) => {
-          if (status !== 200) {
-            this.productCached$.subscribe((cachedProducts) => {
-              this.allProducts = {
-                total: 10,
-                limit: 10,
-                products: cachedProducts,
-              };
-              this.pagination.totalItems = 10;
-              this.pagination.currentPage = 1;
-            });
-          }
-          return throwError(status);
+        catchError((error) => {
+          this.errorAllProduct();
+          return throwError(error);
         })
       )
-      .subscribe(async (response) => {
-        this.allProducts = response;
-        await db.deleteTableLines(productCached);
-        await db.bulkAddTableLines(
-          productCached,
-          response.products as ProductType[]
-        );
-        this.productCached$.subscribe((cachedProducts) => {
-          console.log('cached products:', cachedProducts);
-        });
+      .subscribe((response) => {
+        this.successResponse(response);
       });
   }
 

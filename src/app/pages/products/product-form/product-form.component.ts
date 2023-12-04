@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, liveQuery } from 'dexie';
+import { liveQuery } from 'dexie';
 import { catchError, take, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
 import { productCached, waitingProduct } from '../../../enums/enums';
@@ -34,8 +34,6 @@ import { ProductFormType, ProductType } from '../../../type/product.type';
 export class ProductFormComponent implements OnDestroy {
   productCached$ = liveQuery(() => db.productCached.toArray());
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
-  private waitingProductSubscription?: Subscription;
-  private productCachedSubscription?: Subscription;
 
   productId?: number;
 
@@ -61,52 +59,47 @@ export class ProductFormComponent implements OnDestroy {
   ) {
     this.route.params.subscribe((params) => {
       this.productId = parseInt(params['id']);
-      console.log('zzzzz');
       if (this.productId) {
-        console.log('zzzzzzzzzzzzzzzz');
-
         productService
           .getOneProduct(this.productId)
           .pipe(
             take(1),
-            catchError(({ status }) => {
+            catchError(async ({ status }) => {
               if (status !== 200) {
-                // let alreadyHandledError = false;
-                // todo : voir pourquoi Z
-                console.log('test Eroor');
-                this.waitingProductSubscription =
-                  this.waitingProduct$.subscribe(async () => {
-                    // if (!alreadyHandledError) {
-                    // alreadyHandledError = true;
-                    const product = await db.getTableLineByWhere<ProductType>(
-                      waitingProduct,
-                      'id',
+                const product = await db.getTableLineByWhere<ProductType>(
+                  waitingProduct,
+                  'id',
+                  this.productId as number
+                );
+                setTimeout(async () => {
+                  if (product) {
+                    this.initForm(product);
+                  } else {
+                    const cachedProduct = await db.getTableLine<ProductType>(
+                      productCached,
                       this.productId as number
                     );
-                    if (product) {
-                      this.initForm(product);
-                    } else {
-                      this.productCachedSubscription =
-                        this.productCached$.subscribe(async () => {
-                          this.initForm(
-                            await db.getTableLine(
-                              productCached,
-                              this.productId as number
-                            )
-                          );
-                        });
+                    if (cachedProduct) {
+                      setTimeout(() => {
+                        this.initForm(cachedProduct);
+                      }, 10);
                     }
-                    // }
-                  });
+                  }
+                }, 100);
               }
               return throwError(status);
             })
           )
           .subscribe((product) => {
-            this.initForm(product);
+            this.initForm(product as ProductType);
           });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.productCached$;
+    this.waitingProduct$;
   }
 
   initForm(product: ProductType) {
@@ -130,7 +123,6 @@ export class ProductFormComponent implements OnDestroy {
       // TODO :: gérer le formats des images plus tard
       // images: [images]
     });
-    console.log('INNIIT FORM', this.productForm, product);
   }
 
   async submitProduct() {
@@ -144,10 +136,5 @@ export class ProductFormComponent implements OnDestroy {
 
   goToProducts(): void {
     this.router.navigate(['/products']);
-  }
-
-  ngOnDestroy() {
-    this.waitingProductSubscription?.unsubscribe();
-    this.productCachedSubscription?.unsubscribe();
   }
 }

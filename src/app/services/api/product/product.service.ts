@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
-import { Observable, catchError, throwError } from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
 import {
   ProductAPI,
@@ -30,7 +30,7 @@ export class ProductService {
     );
   }
 
-  getProductList(limit: number, skip?: number): Observable<AllProductType> {
+  getProductList(limit: number, skip?: number) {
     return this.httpClient.get<AllProductType>(
       `${ProductAPI.ProductListUrl}?limit=${limit}${
         skip ? `&skip=${skip}` : ''
@@ -38,11 +38,7 @@ export class ProductService {
     );
   }
 
-  getProductListAndNavigate(
-    limit: number,
-    skip: number,
-    currentPage: number
-  ): Observable<AllProductType> {
+  getProductListAndNavigate(limit: number, skip: number, currentPage: number) {
     this.navigateToFoo(currentPage);
     return this.getProductList(limit, skip);
   }
@@ -60,7 +56,6 @@ export class ProductService {
   postProduct(productValues: ProductType): boolean {
     try {
       const { id: productId, localDbId } = productValues;
-      console.log('product::', productValues, productId);
       // If there is already and id, it's an update
       if (productId !== undefined && parseInt(productId.toString()) >= 0) {
         const dataToSend = { ...productValues };
@@ -73,36 +68,24 @@ export class ProductService {
           .pipe(
             catchError((error) => {
               const { status } = error;
-              console.log('product in pipee', productValues, status);
-              this.waitingProduct$.subscribe(() => {
-                // if this object has already been modified
-                if (localDbId) {
-                  db.updateTableLines(waitingProduct, productValues);
-                } else {
-                  db.addTableLines(waitingProduct, productValues);
-                }
-              });
-
+              if (localDbId) {
+                db.updateTableLines(waitingProduct, productValues);
+              } else {
+                db.addTableLines(waitingProduct, productValues);
+              }
               return throwError(error);
             })
           )
-          .subscribe((res) => {
-            console.log('resss', res);
-          });
+          .subscribe((res) => {});
         // no id, it's a create
       } else {
         this.httpClient
           .post<ProductType>(`${ProductAPI.ProductAdd}`, productValues)
           .pipe(
             catchError(({ status }) => {
-              console.log('create product offline', status);
               if (status !== 200) {
-                this.waitingProduct$.subscribe(() => {
-                  db.addTableLines(waitingProduct, productValues);
-                });
-                this.productCached$.subscribe(() => {
-                  db.addTableLines(productCached, productValues);
-                });
+                db.addTableLines(waitingProduct, productValues);
+                db.addTableLines(productCached, productValues);
               }
               return throwError(status);
             })
@@ -111,7 +94,6 @@ export class ProductService {
       }
       return true;
     } catch {
-      console.log('An error occured, please retry');
       return false;
     }
   }
