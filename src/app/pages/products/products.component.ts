@@ -60,8 +60,6 @@ export class ProductsComponent implements OnInit {
       }
       this.pagination.currentPage = pageNumber;
       this.getAllProducts();
-
-      console.log('allProducts', this.allProducts);
     });
 
     this.productCached$.subscribe((products) => {
@@ -94,8 +92,7 @@ export class ProductsComponent implements OnInit {
 
   async successResponse(response: AllProductType) {
     this.allProducts = response as AllProductType;
-    console.log('sucess response:');
-    await db.deleteTableLines(productCached);
+    await db.deleteTable(productCached);
     await db.bulkAddTableLines(
       productCached,
       this.allProducts?.products as ProductType[]
@@ -116,7 +113,6 @@ export class ProductsComponent implements OnInit {
       .subscribe((response) => {
         this.successResponse(response);
       });
-    console.log('allProducts bis', this.allProducts?.products);
   }
 
   goToProduct(id: string | number): void {
@@ -127,7 +123,6 @@ export class ProductsComponent implements OnInit {
     productId?: number | string,
     isPendingProduct: boolean = false
   ): void {
-    console.log('ispendingproduct:', isPendingProduct);
     if (isPendingProduct) {
       this.router.navigate(
         [`/product-form${productId ? `/${productId}` : ''}`],

@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { db } from '../../../database/db';
 import { waitingProduct } from '../../enums/enums';
 import { ProductType } from '../../type/product.type';
+import { ProductService } from '../api/product/product.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NetworkRetryService {
+  constructor(private productService: ProductService) {}
+
   get pendingRequests() {
     return db.table(waitingProduct).toArray();
   }
@@ -15,31 +18,11 @@ export class NetworkRetryService {
     return db.table(waitingProduct).add(productValues);
   }
 
-  async retryPendingRequests() {
+  async sendPendingRequests() {
+    console.log('test !! ');
     for (const pendingRequest of await this.pendingRequests) {
       console.log('pendingRequest :', pendingRequest);
-      // this.postProduct(pendingRequest).subscribe(
-      //   () => {
-      //     // Successful request, remove from queue
-      //   },
-      //   (error: any) => {
-      //     console.log('error', error);
-      //     // Request failed, handle error and potentially add back to queue
-      //   }
-      // );
+      this.productService.postProduct(pendingRequest, true);
     }
   }
-
-  // private postProduct(productValues: ProductType) {
-  //   return this.httpClient
-  //     .post<ProductType>(`${ProductAPI.ProductAdd}`, productValues)
-  //     .pipe(
-  //       catchError(({ status }) => {
-  //         if (status !== 200) {
-  //           this.addPendingRequest(productValues);
-  //         }
-  //         return throwError(status);
-  //       })
-  //     );
-  // }
 }

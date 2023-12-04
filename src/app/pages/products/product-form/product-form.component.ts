@@ -60,8 +60,6 @@ export class ProductFormComponent implements OnDestroy {
   ) {
     this.route.queryParams.subscribe((params) => {
       this.isPendingProduct = params['isPendingProduct'];
-
-      console.log('isPendingProduct:', this.isPendingProduct);
     });
     this.route.params.subscribe((params) => {
       this.productId = parseInt(params['id']);

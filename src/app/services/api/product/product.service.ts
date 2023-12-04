@@ -49,7 +49,7 @@ export class ProductService {
     });
   }
 
-  postProduct(productValues: ProductType): boolean {
+  postProduct(productValues: ProductType, sendPendingRequest = false): boolean {
     try {
       const { id: productId, localDbId } = productValues;
       // If there is already and id, it's an update
@@ -72,7 +72,12 @@ export class ProductService {
               return throwError(error);
             })
           )
-          .subscribe((res) => {});
+          .subscribe((res) => {
+            if (sendPendingRequest && localDbId) {
+              db.deleteTableLines(waitingProduct, localDbId);
+            }
+            console.log('res.status update ::', res);
+          });
         // no id, it's a create
       } else {
         this.httpClient
@@ -81,12 +86,15 @@ export class ProductService {
             catchError(({ status }) => {
               if (status !== 200) {
                 db.addTableLines(waitingProduct, productValues);
-                // db.addTableLines(productCached, productValues);
               }
               return throwError(status);
             })
           )
-          .subscribe();
+          .subscribe((res) => {
+            if (sendPendingRequest && localDbId) {
+              db.deleteTableLines(waitingProduct, localDbId);
+            }
+          });
       }
       return true;
     } catch {

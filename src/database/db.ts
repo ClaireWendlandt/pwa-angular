@@ -43,8 +43,12 @@ export class AppDB extends Dexie {
     return tableCount;
   }
 
-  async deleteTableLines(tableName: string): Promise<void> {
+  async deleteTable(tableName: string): Promise<void> {
     this.table(tableName).clear();
+  }
+
+  async deleteTableLines(tableName: string, key: number): Promise<void> {
+    this.table(tableName).delete(key);
   }
 
   async bulkAddTableLines<Type>(
@@ -54,21 +58,14 @@ export class AppDB extends Dexie {
     this.table(tableName).bulkAdd(items);
   }
 
-  async addTableLines<Type>(
-    tableName: string,
-    item: Type & { pushMethodPWA?: string }
-  ): Promise<void> {
-    // remove this later, but really usefull for the moment for read datas and understand what's happening
-    item.pushMethodPWA = 'POST';
+  async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
     this.table(tableName).add(item);
   }
 
   async updateTableLines<Type>(
     tableName: string,
-    item: Type & LocalDbType // & { pushMethodPWA?: string }
+    item: Type & LocalDbType
   ): Promise<void> {
-    // remove this later, but really usefull for the moment for read datas and understand what's happening
-    // item.pushMethodPWA = 'PUT';
     this.table(tableName).update(item.localDbId, item);
   }
 }
