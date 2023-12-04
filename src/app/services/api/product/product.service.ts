@@ -59,15 +59,19 @@ export class ProductService {
       console.log('product::', productValues, productId);
       // If there is already and id, it's an update
       if (productId !== undefined && parseInt(productId.toString()) >= 0) {
+        const dataToSend = { ...productValues };
+        delete dataToSend.id;
         this.httpClient
           .put<ProductType>(
-            `${ProductAPI.ProductListUrl}${productId}`,
-            productValues
+            `${ProductAPI.ProductListUrl}/${productId}`,
+            dataToSend
           )
           .pipe(
-            catchError(({ status }) => {
-              console.log('product in pipe', productValues);
+            catchError((error) => {
+              const { status } = error;
+              console.log('product in pipee', productValues, status);
               this.waitingProduct$.subscribe(() => {
+                // if this object has already been modified
                 if (localDbId) {
                   db.updateTableLines(waitingProduct, productValues);
                 } else {
@@ -75,10 +79,12 @@ export class ProductService {
                 }
               });
 
-              return throwError(status);
+              return throwError(error);
             })
           )
-          .subscribe();
+          .subscribe((res) => {
+            console.log('resss', res);
+          });
         // no id, it's a create
       } else {
         this.httpClient
