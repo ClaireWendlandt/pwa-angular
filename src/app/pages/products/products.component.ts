@@ -101,7 +101,6 @@ export class ProductsComponent implements OnInit {
     this.router.navigate(['/product', id]);
   }
   goToProductForm(productId?: number | string): void {
-    console.log('product id :', productId);
     this.router.navigate([`/product-form${productId ? `/${productId}` : ''}`]);
   }
 }

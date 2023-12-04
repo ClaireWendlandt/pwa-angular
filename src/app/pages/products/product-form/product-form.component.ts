@@ -61,8 +61,10 @@ export class ProductFormComponent implements OnDestroy {
   ) {
     this.route.params.subscribe((params) => {
       this.productId = parseInt(params['id']);
-
+      console.log('zzzzz');
       if (this.productId) {
+        console.log('zzzzzzzzzzzzzzzz');
+
         productService
           .getOneProduct(this.productId)
           .pipe(

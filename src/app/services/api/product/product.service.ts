@@ -4,7 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { Observable, catchError, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import { ProductAPI, waitingProduct } from '../../../enums/enums';
+import {
+  ProductAPI,
+  productCached,
+  waitingProduct,
+} from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
 
 @Injectable({
@@ -95,6 +99,9 @@ export class ProductService {
               if (status !== 200) {
                 this.waitingProduct$.subscribe(() => {
                   db.addTableLines(waitingProduct, productValues);
+                });
+                this.productCached$.subscribe(() => {
+                  db.addTableLines(productCached, productValues);
                 });
               }
               return throwError(status);
