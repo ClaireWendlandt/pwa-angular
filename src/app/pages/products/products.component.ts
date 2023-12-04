@@ -11,7 +11,7 @@ import {
   PaginationType,
 } from '../../core/pagination/pagination.component';
 import { productCached } from '../../enums/enums';
-import { DummyJsonService } from '../../services/api/dummyJson/dummy-json.service';
+import { ProductService } from '../../services/api/product/product.service';
 import { AllProductType, ProductType } from '../../type/product.type';
 
 @Component({
@@ -33,7 +33,7 @@ export class ProductsComponent implements OnInit {
   productCached$ = liveQuery(() => db.productCached.toArray());
 
   constructor(
-    private dummyJsonService: DummyJsonService,
+    private productService: ProductService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -62,7 +62,7 @@ export class ProductsComponent implements OnInit {
       this.pagination.currentPage === 1
         ? 0
         : this.pagination.itemsPerPage * (this.pagination.currentPage - 1);
-    this.dummyJsonService
+    this.productService
       .getProductListAndNavigate(
         this.pagination.itemsPerPage,
         skip,

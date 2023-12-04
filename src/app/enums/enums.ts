@@ -1,7 +1,7 @@
-export enum DummyJsonAPI {
-  DummyJsonUrl = 'https://dummyjson.com/',
+export enum ProductAPI {
+  ProductUrl = 'https://dummyjson.com/',
   ProductListEndpoint = 'products',
-  ProductListUrl = `${DummyJsonUrl}${ProductListEndpoint}`,
+  ProductListUrl = `${ProductUrl}${ProductListEndpoint}`,
   ProductAdd = `${ProductListUrl}/add`,
 }
 

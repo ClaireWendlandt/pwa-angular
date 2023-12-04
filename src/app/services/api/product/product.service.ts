@@ -4,33 +4,31 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { Observable, catchError, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import { DummyJsonAPI, waitingProduct } from '../../../enums/enums';
+import { ProductAPI, waitingProduct } from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DummyJsonService {
+export class ProductService {
   constructor(
     private httpClient: HttpClient,
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    console.log('tessst');
-  }
+  ) {}
 
   productCached$ = liveQuery(() => db.productCached.toArray());
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
   getOneProduct(id: string | number) {
     return this.httpClient.get<ProductType>(
-      `${DummyJsonAPI.ProductListUrl}/${id}`
+      `${ProductAPI.ProductListUrl}/${id}`
     );
   }
 
   getProductList(limit: number, skip?: number): Observable<AllProductType> {
     return this.httpClient.get<AllProductType>(
-      `${DummyJsonAPI.ProductListUrl}?limit=${limit}${
+      `${ProductAPI.ProductListUrl}?limit=${limit}${
         skip ? `&skip=${skip}` : ''
       }`
     );
@@ -55,23 +53,23 @@ export class DummyJsonService {
     });
   }
 
-  postProduct(
-    productValues: ProductType,
-    productId: number | undefined = undefined
-  ): boolean {
+  postProduct(productValues: ProductType): boolean {
     try {
+      const { id: productId, localDbId } = productValues;
+      console.log('product::', productValues, productId);
       // If there is already and id, it's an update
-      if (productId !== undefined && productId >= 0) {
+      if (productId !== undefined && parseInt(productId.toString()) >= 0) {
         this.httpClient
           .put<ProductType>(
-            `${DummyJsonAPI.ProductListUrl}${productId}`,
+            `${ProductAPI.ProductListUrl}${productId}`,
             productValues
           )
           .pipe(
             catchError(({ status }) => {
+              console.log('product in pipe', productValues);
               this.waitingProduct$.subscribe(() => {
-                if (productValues.localDbId) {
-                  db.updateTableLines(waitingProduct, productId);
+                if (localDbId) {
+                  db.updateTableLines(waitingProduct, productValues);
                 } else {
                   db.addTableLines(waitingProduct, productValues);
                 }
@@ -84,10 +82,10 @@ export class DummyJsonService {
         // no id, it's a create
       } else {
         this.httpClient
-          .post<ProductType>(`${DummyJsonAPI.ProductAdd}`, productValues)
+          .post<ProductType>(`${ProductAPI.ProductAdd}`, productValues)
           .pipe(
             catchError(({ status }) => {
-              console.log('test333', status);
+              console.log('create product offline', status);
               if (status !== 200) {
                 this.waitingProduct$.subscribe(() => {
                   db.addTableLines(waitingProduct, productValues);

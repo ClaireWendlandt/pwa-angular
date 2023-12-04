@@ -32,7 +32,7 @@ export class NetworkRetryService {
 
   // private postProduct(productValues: ProductType) {
   //   return this.httpClient
-  //     .post<ProductType>(`${DummyJsonAPI.ProductAdd}`, productValues)
+  //     .post<ProductType>(`${ProductAPI.ProductAdd}`, productValues)
   //     .pipe(
   //       catchError(({ status }) => {
   //         if (status !== 200) {

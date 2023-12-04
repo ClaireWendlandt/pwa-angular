@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -11,11 +11,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
-import { liveQuery } from 'dexie';
-import { catchError, throwError } from 'rxjs';
+import { Subscription, liveQuery } from 'dexie';
+import { catchError, take, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import { productCached } from '../../../enums/enums';
-import { DummyJsonService } from '../../../services/api/dummyJson/dummy-json.service';
+import { productCached, waitingProduct } from '../../../enums/enums';
+import { ProductService } from '../../../services/api/product/product.service';
 import { ProductFormType, ProductType } from '../../../type/product.type';
 
 @Component({
@@ -31,8 +31,12 @@ import { ProductFormType, ProductType } from '../../../type/product.type';
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })
-export class ProductFormComponent {
+export class ProductFormComponent implements OnDestroy {
   productCached$ = liveQuery(() => db.productCached.toArray());
+  waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
+  private waitingProductSubscription?: Subscription;
+  private productCachedSubscription?: Subscription;
+
   productId?: number;
 
   productForm: FormGroup<ProductFormType> = new FormGroup<ProductFormType>({
@@ -50,7 +54,7 @@ export class ProductFormComponent {
   });
 
   constructor(
-    private dummyJsonService: DummyJsonService,
+    private productService: ProductService,
     private httpClient: HttpClient,
     private router: Router,
     private route: ActivatedRoute
@@ -59,19 +63,39 @@ export class ProductFormComponent {
       this.productId = parseInt(params['id']);
 
       if (this.productId) {
-        dummyJsonService
+        productService
           .getOneProduct(this.productId)
           .pipe(
+            take(1),
             catchError(({ status }) => {
               if (status !== 200) {
-                this.productCached$.subscribe(async () => {
-                  this.initForm(
-                    await db.getTableLine(
-                      productCached,
+                // let alreadyHandledError = false;
+                // todo : voir pourquoi Z
+                console.log('test Eroor');
+                this.waitingProductSubscription =
+                  this.waitingProduct$.subscribe(async () => {
+                    // if (!alreadyHandledError) {
+                    // alreadyHandledError = true;
+                    const product = await db.getTableLineByWhere<ProductType>(
+                      waitingProduct,
+                      'id',
                       this.productId as number
-                    )
-                  );
-                });
+                    );
+                    if (product) {
+                      this.initForm(product);
+                    } else {
+                      this.productCachedSubscription =
+                        this.productCached$.subscribe(async () => {
+                          this.initForm(
+                            await db.getTableLine(
+                              productCached,
+                              this.productId as number
+                            )
+                          );
+                        });
+                    }
+                    // }
+                  });
               }
               return throwError(status);
             })
@@ -83,20 +107,19 @@ export class ProductFormComponent {
     });
   }
 
-  initForm({
-    title,
-    description,
-    category,
-    price,
-    images,
-    localDbId,
-  }: ProductType) {
+  initForm(product: ProductType) {
+    const { title, description, category, price, images, localDbId } = product;
+    // await db.getTableLine(
+    //   productCached,
+    //   this.productId as number
+    // )
     if (this.productId) {
       this.productForm.addControl('id', new FormControl(this.productId));
     }
     if (localDbId) {
       this.productForm.addControl('localDbId', new FormControl(localDbId));
     }
+
     this.productForm.patchValue({
       title,
       description,
@@ -105,11 +128,12 @@ export class ProductFormComponent {
       // TODO :: gérer le formats des images plus tard
       // images: [images]
     });
+    console.log('INNIIT FORM', this.productForm, product);
   }
 
   async submitProduct() {
     if (
-      this.dummyJsonService.postProduct(this.productForm.value as ProductType)
+      this.productService.postProduct(this.productForm.value as ProductType)
     ) {
       this.productForm.reset();
       this.goToProducts();
@@ -118,5 +142,10 @@ export class ProductFormComponent {
 
   goToProducts(): void {
     this.router.navigate(['/products']);
+  }
+
+  ngOnDestroy() {
+    this.waitingProductSubscription?.unsubscribe();
+    this.productCachedSubscription?.unsubscribe();
   }
 }

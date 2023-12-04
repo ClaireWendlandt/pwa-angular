@@ -1,5 +1,6 @@
 import Dexie, { Table } from 'dexie';
-import { LocalDbType, ProductType } from '../app/type/product.type';
+import { LocalDbType } from '../app/type/db.type';
+import { ProductType } from '../app/type/product.type';
 
 export class AppDB extends Dexie {
   productCached!: Table<ProductType>;
@@ -10,7 +11,7 @@ export class AppDB extends Dexie {
     // this.recreateDB();
     this.version(1).stores({
       productCached: '++id',
-      waitingProduct: '++localDbId',
+      waitingProduct: '++localDbId, id',
     });
   }
 
@@ -23,8 +24,18 @@ export class AppDB extends Dexie {
 
   async getTableLine<Type>(tableName: string, id: number): Promise<Type> {
     const tableLine = await this.table(tableName).get(id);
-    console.log('table line :', tableLine);
     return tableLine;
+  }
+
+  async getTableLineByWhere<Type>(
+    tableName: string,
+    key: keyof Type,
+    value: number
+  ): Promise<Type> {
+    return await this.table(tableName)
+      .where(key.toString())
+      .equals(value)
+      .first();
   }
 
   async countTableLines(tableName: string): Promise<number> {
@@ -45,7 +56,7 @@ export class AppDB extends Dexie {
 
   async addTableLines<Type>(
     tableName: string,
-    item: Type & { pushMethodPWA?: 'POST' }
+    item: Type & { pushMethodPWA?: string }
   ): Promise<void> {
     // remove this later, but really usefull for the moment for read datas and understand what's happening
     item.pushMethodPWA = 'POST';
@@ -54,11 +65,13 @@ export class AppDB extends Dexie {
 
   async updateTableLines<Type>(
     tableName: string,
-    item: Type & LocalDbType & { pushMethodPWA?: 'PUT' }
+    item: Type & LocalDbType // & { pushMethodPWA?: string }
   ): Promise<void> {
     // remove this later, but really usefull for the moment for read datas and understand what's happening
-    item.pushMethodPWA = 'PUT';
-    this.table(tableName).update(item.localDbId, { localDbId: item });
+    // item.pushMethodPWA = 'PUT';
+
+    console.log('iiiter', item);
+    this.table(tableName).update(item.localDbId, item);
   }
 }
 
