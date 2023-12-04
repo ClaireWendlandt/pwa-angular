@@ -50,6 +50,7 @@ export class ProductsComponent implements OnInit {
       }
       this.pagination.currentPage = pageNumber;
       this.getAllProducts();
+      console.log('allProducts', this.allProducts);
     });
   }
 
@@ -64,6 +65,7 @@ export class ProductsComponent implements OnInit {
         limit: products.length,
         products: products,
       };
+      console.log('allProducts bis bis', this.allProducts);
       this.pagination.totalItems = products.length;
       this.pagination.itemsPerPage = products.length;
       this.pagination.currentPage = 1;
@@ -99,6 +101,7 @@ export class ProductsComponent implements OnInit {
       .subscribe((response) => {
         this.successResponse(response);
       });
+    console.log('allProducts bis', this.allProducts?.products);
   }
 
   goToProduct(id: string | number): void {

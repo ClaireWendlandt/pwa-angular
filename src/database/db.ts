@@ -69,8 +69,6 @@ export class AppDB extends Dexie {
   ): Promise<void> {
     // remove this later, but really usefull for the moment for read datas and understand what's happening
     // item.pushMethodPWA = 'PUT';
-
-    console.log('iiiter', item);
     this.table(tableName).update(item.localDbId, item);
   }
 }

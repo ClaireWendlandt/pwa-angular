@@ -19,11 +19,8 @@ export class ConnexionService {
       this.isUserOnline.set(true);
       this.waitingProduct$.subscribe((waitingProduct) => {
         if (waitingProduct.length > 0) {
-          waitingProduct.forEach((product) => {
-            console.log('product :', product);
-          });
+          waitingProduct.forEach((product) => {});
         }
-        console.log('waiiiiiting:', waitingProduct);
       });
     });
 

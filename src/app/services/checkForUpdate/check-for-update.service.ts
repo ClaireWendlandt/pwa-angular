@@ -6,7 +6,6 @@ import { first } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class CheckForUpdateService {
   constructor(appRef: ApplicationRef, updates: SwUpdate) {
-    console.log('in check for update');
     // Allow the app to stabilize first, before starting
     // polling for updates with `interval()`.
     const appIsStable$ = appRef.isStable.pipe(
@@ -17,12 +16,6 @@ export class CheckForUpdateService {
     everySixHoursOnceAppIsStable$.subscribe(async () => {
       try {
         const updateFound = await updates.checkForUpdate();
-
-        console.log(
-          updateFound
-            ? 'A new version is available.'
-            : 'Already on the latest version.'
-        );
 
         if (updateFound) {
           document.location.reload();
