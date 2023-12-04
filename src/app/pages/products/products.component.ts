@@ -99,6 +99,9 @@ export class ProductsComponent implements OnInit {
     );
   }
 
+  // TODO :: get all product quand isUserOnline passe à true avec un effect
+  // Permet de rafraichir la page avec la donnée à jour, de reset la pagination
+  // Fix la pagination par ailleurs
   public getAllProducts(): void {
     const skip =
       this.pagination.currentPage === 1

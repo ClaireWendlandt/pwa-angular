@@ -19,9 +19,7 @@ export class NetworkRetryService {
   }
 
   async sendPendingRequests() {
-    console.log('test !! ');
     for (const pendingRequest of await this.pendingRequests) {
-      console.log('pendingRequest :', pendingRequest);
       this.productService.postProduct(pendingRequest, true);
     }
   }
