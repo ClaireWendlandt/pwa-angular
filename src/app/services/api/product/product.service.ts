@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { catchError, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import { ProductAPI, waitingProduct } from '../../../enums/enums';
+import { ProductAPI, waitingProductKey } from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
 
 @Injectable({
@@ -65,16 +65,16 @@ export class ProductService {
             catchError((error) => {
               const { status } = error;
               if (localDbId) {
-                db.updateTableLines(waitingProduct, productValues);
+                db.updateTableLines(waitingProductKey, productValues);
               } else {
-                db.addTableLines(waitingProduct, productValues);
+                db.addTableLines(waitingProductKey, productValues);
               }
               return throwError(error);
             })
           )
           .subscribe((res) => {
             if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProduct, localDbId);
+              db.deleteTableLines(waitingProductKey, localDbId);
             }
             console.log('res.status update ::', res);
           });
@@ -85,14 +85,14 @@ export class ProductService {
           .pipe(
             catchError(({ status }) => {
               if (status !== 200) {
-                db.addTableLines(waitingProduct, productValues);
+                db.addTableLines(waitingProductKey, productValues);
               }
               return throwError(status);
             })
           )
           .subscribe((res) => {
             if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProduct, localDbId);
+              db.deleteTableLines(waitingProductKey, localDbId);
             }
           });
       }

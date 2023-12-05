@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { catchError, take, throwError } from 'rxjs';
 import { db } from '../../../../database/db';
-import { productCached, waitingProduct } from '../../../enums/enums';
+import { productCachedKey, waitingProductKey } from '../../../enums/enums';
 import { ProductService } from '../../../services/api/product/product.service';
 import { ProductFormType, ProductType } from '../../../type/product.type';
 
@@ -84,7 +84,7 @@ export class ProductFormComponent implements OnDestroy {
 
   async usePendingDatas() {
     const product = await db.getTableLineByWhere<ProductType>(
-      waitingProduct,
+      waitingProductKey,
       this.isPendingProduct ? 'localDbId' : 'id',
       this.productId as number
     );
@@ -94,7 +94,7 @@ export class ProductFormComponent implements OnDestroy {
         this.initForm(product);
       } else {
         const cachedProduct = await db.getTableLine<ProductType>(
-          productCached,
+          productCachedKey,
           this.productId as number
         );
         if (cachedProduct) {

@@ -15,7 +15,7 @@ import {
   PaginationComponent,
   PaginationType,
 } from '../../core/pagination/pagination.component';
-import { productCached } from '../../enums/enums';
+import { productCachedKey } from '../../enums/enums';
 import { ProductService } from '../../services/api/product/product.service';
 import { AllProductType, ProductType } from '../../type/product.type';
 
@@ -92,9 +92,9 @@ export class ProductsComponent implements OnInit {
 
   async successResponse(response: AllProductType) {
     this.allProducts = response as AllProductType;
-    await db.deleteTable(productCached);
+    await db.deleteTable(productCachedKey);
     await db.bulkAddTableLines(
-      productCached,
+      productCachedKey,
       this.allProducts?.products as ProductType[]
     );
   }

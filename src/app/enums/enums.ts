@@ -5,5 +5,5 @@ export enum ProductAPI {
   ProductAdd = `${ProductListUrl}/add`,
 }
 
-export const productCached = 'productCached';
-export const waitingProduct = 'waitingProduct';
+export const productCachedKey = 'productCached';
+export const waitingProductKey = 'waitingProduct';
