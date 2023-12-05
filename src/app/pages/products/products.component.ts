@@ -17,6 +17,7 @@ import {
 } from '../../core/pagination/pagination.component';
 import { productCachedKey } from '../../enums/enums';
 import { ProductService } from '../../services/api/product/product.service';
+import { ConnexionService } from '../../services/connexion/connexion.service';
 import { AllProductType, ProductType } from '../../type/product.type';
 
 @Component({
@@ -45,7 +46,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private connexionService: ConnexionService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -99,9 +101,12 @@ export class ProductsComponent implements OnInit {
     );
   }
 
-  // TODO :: get all product quand isUserOnline passe à true avec un effect
-  // Permet de rafraichir la page avec la donnée à jour, de reset la pagination
-  // Fix la pagination par ailleurs
+  private refreshData = effect(() => {
+    if (this.connexionService.isUserOnline()) {
+      this.getAllProducts();
+    }
+  });
+
   public getAllProducts(): void {
     const skip =
       this.pagination.currentPage === 1
