@@ -25,15 +25,15 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     const currentUrl: string = this.router.url.substring(1);
     this.activeLink =
-      this.items[
-        this.items?.findIndex(
-          (item) => item.label?.toLowerCase() === currentUrl
-        )
-      ].label;
+      this.items?.find((item) => item.label?.toLowerCase() === currentUrl)
+        ?.label || '';
+    console.log('active link : ', this.activeLink);
   }
 
   goToPage(pageName: string): void {
     this.router.navigate([`${pageName.toLowerCase()}`]);
-    this.activeLink = pageName;
+    if (this.activeLink) {
+      this.activeLink = pageName;
+    }
   }
 }
