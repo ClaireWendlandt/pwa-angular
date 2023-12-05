@@ -123,25 +123,19 @@ export class ProductsComponent implements OnInit {
       });
   }
 
-  goToProduct(id: string | number): void {
-    this.router.navigate(['/product', id]);
+  goToProduct(
+    productId?: number | string,
+    isPendingProduct: boolean = false
+  ): void {
+    const queryParams = isPendingProduct ? { isPendingProduct } : {};
+    this.router.navigate([`/product/${productId || ''}`], { queryParams });
   }
 
   goToProductForm(
     productId?: number | string,
     isPendingProduct: boolean = false
   ): void {
-    if (isPendingProduct) {
-      this.router.navigate(
-        [`/product-form${productId ? `/${productId}` : ''}`],
-        {
-          queryParams: { isPendingProduct },
-        }
-      );
-    } else {
-      this.router.navigate([
-        `/product-form${productId ? `/${productId}` : ''}`,
-      ]);
-    }
+    const queryParams = isPendingProduct ? { isPendingProduct } : {};
+    this.router.navigate([`/product-form/${productId || ''}`], { queryParams });
   }
 }

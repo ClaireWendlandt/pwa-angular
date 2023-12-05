@@ -26,10 +26,11 @@
             <mat-card-actions>
                @if(product.id){
                   <button (click)="goToProductForm(product.id)" mat-button>Update</button>
+                  <button (click)="goToProduct(product.id)" mat-button>View product</button>
                } @else {
                   <button (click)="goToProductForm(product.localDbId, true)" mat-button>Update</button>
+                  <button (click)="goToProduct(product.localDbId, true)" mat-button>View product</button>
                }
-              
             </mat-card-actions>
          </mat-card>
       }

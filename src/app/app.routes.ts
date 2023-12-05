@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { PlatformComponent } from './layouts/platform/platform.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ProductFormComponent } from './pages/products/product-form/product-form.component';
+import { ProductComponent } from './pages/products/product/product.component';
 import { ProductsComponent } from './pages/products/products.component';
 
 export const routes: Routes = [
@@ -23,6 +24,11 @@ export const routes: Routes = [
         path: 'products',
         component: ProductsComponent,
         title: 'Products',
+      },
+      {
+        path: 'product/:id',
+        component: ProductComponent,
+        title: 'Product',
       },
       {
         path: 'product-form',
