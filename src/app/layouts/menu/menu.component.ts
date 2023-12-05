@@ -27,7 +27,6 @@ export class MenuComponent implements OnInit {
     this.activeLink =
       this.items?.find((item) => item.label?.toLowerCase() === currentUrl)
         ?.label || '';
-    console.log('active link : ', this.activeLink);
   }
 
   goToPage(pageName: string): void {
