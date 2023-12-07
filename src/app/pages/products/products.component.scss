@@ -1,3 +1,8 @@
+.productPage {
+   display: flex;
+   flex-direction: column;
+   padding-top: 30px;
+}
 .allCards {
    display: flex;
    flex-flow: row wrap;
@@ -20,5 +25,15 @@
 }
 
 .addProductButton {
-   margin: 20px;
+   width: 250px;
+   justify-content: left;
+   text-transform: uppercase;
+   margin-left: auto;
+   font-size: 12px;
+   margin-bottom: 20px;
+}
+
+.paginationComponent {
+   
+   background-color: cadetblue;
 }

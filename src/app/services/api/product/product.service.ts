@@ -76,7 +76,6 @@ export class ProductService {
             if (sendPendingRequest && localDbId) {
               db.deleteTableLines(waitingProductKey, localDbId);
             }
-            console.log('res.status update ::', res);
           });
         // no id, it's a create
       } else {

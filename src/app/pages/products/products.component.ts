@@ -18,6 +18,7 @@ import {
 import { productCachedKey } from '../../enums/enums';
 import { ProductService } from '../../services/api/product/product.service';
 import { ConnexionService } from '../../services/connexion/connexion.service';
+import { ImageService } from '../../services/image.service';
 import { AllProductType, ProductType } from '../../type/product.type';
 
 @Component({
@@ -47,7 +48,8 @@ export class ProductsComponent implements OnInit {
     private productService: ProductService,
     private route: ActivatedRoute,
     private router: Router,
-    private connexionService: ConnexionService
+    private connexionService: ConnexionService,
+    private imageService: ImageService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -99,6 +101,10 @@ export class ProductsComponent implements OnInit {
       productCachedKey,
       this.allProducts?.products as ProductType[]
     );
+    response.products.forEach(async (element) => {
+      // element.images = await getBlob(element.images[0]);
+      this.imageService.downloadImage(element.images[0]);
+    });
   }
 
   private refreshData = effect(() => {
@@ -138,4 +144,11 @@ export class ProductsComponent implements OnInit {
     const queryParams = isPendingProduct ? { isPendingProduct } : {};
     this.router.navigate([`/product-form/${productId || ''}`], { queryParams });
   }
+}
+function getBlob(
+  arg0: string
+):
+  | import('../../type/product.type').ProductImage
+  | PromiseLike<import('../../type/product.type').ProductImage> {
+  throw new Error('Function not implemented.');
 }

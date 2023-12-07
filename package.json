@@ -22,7 +22,10 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "@angular/service-worker": "^17.0.0",
+    "@types/file-saver": "^2.0.7",
     "dexie": "^3.2.4",
+    "file-saver": "^2.0.5",
+    "ngx-filesaver": "^17.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"

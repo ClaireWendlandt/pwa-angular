@@ -1,15 +1,18 @@
 .pagination {
+   padding-top: 20px;
    display: flex;
    flex-direction: column;
    align-items: flex-end;
-   margin-right: 20px;
+   margin-right: 80px;
+   font-size: 12px;
+   .beforeOrNext {
+      display: flex;
+      margin: 10px 0 20px;
+   }
+   
+   .spaceAround {
+      padding: 0 10px;
+      font-size: 16px
+   }
 }
 
-.beforeOrNext {
-   display: flex;
-   margin: 20px 0 20px;
-}
-
-.spaceAround {
-   padding: 0 10px;
-}

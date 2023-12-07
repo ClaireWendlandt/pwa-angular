@@ -7,7 +7,7 @@
            [disabled]="pagination.currentPage === 1"
            (click)="goToPage(-1)"
        >
-           Previous page
+           Previous
        </button>
        <div class="spaceAround">
            Page {{ pagination.currentPage }}
@@ -16,7 +16,7 @@
            [disabled]="pagination.currentPage * pagination.itemsPerPage === pagination.totalItems" 
            (click)="goToPage(1)"
        >
-           Next page
+           Next
        </button>
    </div>
 </div>

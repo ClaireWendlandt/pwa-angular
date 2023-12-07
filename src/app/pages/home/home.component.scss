@@ -1,0 +1,13 @@
+.userNetworkStatus {
+   display: flex;
+   justify-content: center;
+   padding: 100px;
+   font-weight: 500;
+   font-size: 20px ;
+}
+.online {
+   color: green;
+}
+.offline {
+   color: red;
+}
