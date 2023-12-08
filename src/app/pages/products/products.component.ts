@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { db } from '../../../database/db';
 import {
@@ -24,7 +24,13 @@ import { AllProductType, ProductType } from '../../type/product.type';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, PaginationComponent, MatCardModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    PaginationComponent,
+    MatCardModule,
+    MatButtonModule,
+    RouterLink,
+  ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
 })
@@ -127,22 +133,6 @@ export class ProductsComponent implements OnInit {
       .subscribe((response) => {
         this.successResponse(response);
       });
-  }
-
-  goToProduct(
-    productId?: number | string,
-    isPendingProduct: boolean = false
-  ): void {
-    const queryParams = isPendingProduct ? { isPendingProduct } : {};
-    this.router.navigate([`/product/${productId || ''}`], { queryParams });
-  }
-
-  goToProductForm(
-    productId?: number | string,
-    isPendingProduct: boolean = false
-  ): void {
-    const queryParams = isPendingProduct ? { isPendingProduct } : {};
-    this.router.navigate([`/product-form/${productId || ''}`], { queryParams });
   }
 }
 function getBlob(

@@ -43,23 +43,15 @@ export class AppDB extends Dexie {
     return tableCount;
   }
 
-  async deleteTable(tableName: string): Promise<void> {
-    this.table(tableName).clear();
+  async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
+    this.table(tableName).add(item);
   }
-
-  async deleteTableLines(tableName: string, key: number): Promise<void> {
-    this.table(tableName).delete(key);
-  }
-
   async bulkAddTableLines<Type>(
     tableName: string,
     items: Type[]
   ): Promise<void> {
+    console.log('item ::', items);
     this.table(tableName).bulkAdd(items);
-  }
-
-  async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
-    this.table(tableName).add(item);
   }
 
   async updateTableLines<Type>(
@@ -67,6 +59,14 @@ export class AppDB extends Dexie {
     item: Type & LocalDbType
   ): Promise<void> {
     this.table(tableName).update(item.localDbId, item);
+  }
+
+  async deleteTable(tableName: string): Promise<void> {
+    this.table(tableName).clear();
+  }
+
+  async deleteTableLines(tableName: string, key: number): Promise<void> {
+    this.table(tableName).delete(key);
   }
 }
 

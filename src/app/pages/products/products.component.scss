@@ -13,8 +13,9 @@
       .image {
          height: 150px;
          width: auto;
-         object-fit: contain;
+         object-fit: cover;
          padding: 10px 0;
+         opacity: 0.85;
       }
       .content {
          max-height: 100px;
@@ -24,13 +25,17 @@
    }
 }
 
-.addProductButton {
-   width: 250px;
-   justify-content: left;
+.productButton {
+
    text-transform: uppercase;
    margin-left: auto;
    font-size: 12px;
-   margin-bottom: 20px;
+
+   &.add {
+      width: 250px;
+      justify-content: left;
+      margin-bottom: 20px;
+   }
 }
 
 .paginationComponent {
