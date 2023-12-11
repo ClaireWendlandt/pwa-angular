@@ -5,7 +5,7 @@ export type LocalDbType = {
 };
 
 export type LocalDbPictureType = {
-  localDbPicture?: Blob;
+  localDbPicture?: Blob | string;
 };
 
 export type LocalDbFormType = {

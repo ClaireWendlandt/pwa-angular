@@ -24,21 +24,28 @@
       }
    }
 }
-
+.cardsAction {
+   justify-content: flex-end;
+}
 .productButton {
-
    text-transform: uppercase;
-   margin-left: auto;
    font-size: 12px;
 
    &.add {
       width: 250px;
+      margin-left: auto;
       justify-content: left;
       margin-bottom: 20px;
+   }
+   &.updateOrView {
+      margin: 5px;
    }
 }
 
 .paginationComponent {
-   
    background-color: cadetblue;
+}
+
+.mat-mdc-card-header {
+   padding: 16px, 16px;
 }

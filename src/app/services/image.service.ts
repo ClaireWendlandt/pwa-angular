@@ -10,24 +10,29 @@ export class ImageService {
   constructor(private http: HttpClient) {}
   db = new Dexie('waitingProduddct');
 
-  async downloadImage(imageUrl: string) {
-    console.log('image url :', imageUrl);
-    try {
-      const response = this.http.get(imageUrl, { responseType: 'blob' });
-      if (response) {
-        console.log('response :', response);
-        const image = await firstValueFrom(response);
-        const blobPart = new Blob([image], { type: 'image/jpg' });
-        const fileName = imageUrl.split('/').pop();
-        const imagePath = `assets/images/${fileName}`;
+  getImageBlob(imageUrl: string) {
+    return firstValueFrom(this.http.get(imageUrl, { responseType: 'blob' }));
+    // try {
+    //  this.http.get(imageUrl, { responseType: 'blob' }).subscribe((response) => {
 
-        if (fileName) {
-          // FileSaver.saveAs(blobPart, fileName);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    //  });
+    //   if (response) {
+    //     console.log('response :', response);
+    //     const image = await firstValueFrom(response);
+    //     return new Blob([image], { type: 'image/jpg' });
+
+    //     // const blobPart = new Blob([image], { type: 'image/jpg' });
+    //     // const fileName = imageUrl.split('/').pop();
+    //     // const imagePath = `assets/images/${fileName}`;
+
+    //     // if (fileName) {
+    //     //   // FileSaver.saveAs(blobPart, fileName);
+    //     // }
+    //   }
+    //   return undefined;
+    // } catch (error) {
+    //   return undefined;
+    // }
   }
 
   // getImage(imageUrl: string) {

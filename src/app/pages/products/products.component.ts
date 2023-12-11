@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { liveQuery } from 'dexie';
+import { firstValueFrom } from 'rxjs';
 import { db } from '../../../database/db';
 import {
   PaginationComponent,
@@ -60,16 +61,23 @@ export class ProductsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.route.queryParams.subscribe(async (params) => {
-      let pageNumber = parseInt(params['page'] || this.pagination.currentPage);
+      if (params['page']) {
+        console.log('params :', params);
+        let pageNumber = parseInt(params['page']);
 
-      if (
-        pageNumber * this.pagination.itemsPerPage >
-        this.pagination.totalItems
-      ) {
-        pageNumber = 1;
+        if (
+          pageNumber * this.pagination.itemsPerPage >
+          this.pagination.totalItems
+        ) {
+          pageNumber = 1;
+        }
+        this.pagination.currentPage = pageNumber;
+        console.log('getAllProducts from on init');
+        await this.getAllProducts();
+      } else {
+        // set search params to page default current page
+        //this.pagination.currentPage
       }
-      this.pagination.currentPage = pageNumber;
-      this.getAllProducts();
     });
 
     this.productCached$.subscribe((products) => {
@@ -80,6 +88,7 @@ export class ProductsComponent implements OnInit {
       this.waitingProductList.set(products);
     });
   }
+
   private mergeProducts = effect(() => {
     const newProductsList: ProductType[] = [...this.productCachedList()];
     this.waitingProductList().forEach((wp) => {
@@ -97,42 +106,69 @@ export class ProductsComponent implements OnInit {
   });
 
   pageChange(): void {
+    console.log('getAllProducts from pagechange');
     this.getAllProducts();
   }
 
   async successResponse(response: AllProductType) {
     this.allProducts = response as AllProductType;
     await db.deleteTable(productCachedKey);
+
+    // for (let product of this.allProducts.products) {
+    //   console.log(product);
+    //   const imageBlob = await this.imageService.getImageBlob(product.images[0]);
+    //   console.log('image blob', imageBlob);
+    //   product.localDbPicture = await this.imageService.getImageBlob(
+    //     product.images[0]
+    //   );
+    //   break;
+    // }
+
+    // this.allProducts.products.forEach(async (product) => {
+    //   console.log('product', product);
+    //   const imageBlob = await this.imageService.getImageBlob(product.images[0]);
+    //   console.log(imageBlob);
+    // });
+
+    // const imagePromises = this.allProducts.products.map((product) =>
+    //   this.imageService
+    //     .getImageBlob(product.images[0])
+    //     .then((imageBlob) => {
+    //       console.log('tessst');
+    //     })
+    //     .catch((err) => console.log('error', err))
+    // );
+
+    // await Promise.all(imagePromises);
+
+    console.log('rresss', this.allProducts);
     await db.bulkAddTableLines(
       productCachedKey,
       this.allProducts?.products as ProductType[]
     );
-    response.products.forEach(async (element) => {
-      // element.images = await getBlob(element.images[0]);
-      this.imageService.downloadImage(element.images[0]);
-    });
   }
 
   private refreshData = effect(() => {
     if (this.connexionService.isUserOnline()) {
-      this.getAllProducts();
+      console.log('getAllProducts from is useronline');
+      // this.getAllProducts();
     }
   });
 
-  public getAllProducts(): void {
+  public async getAllProducts() {
     const skip =
       this.pagination.currentPage === 1
         ? 0
         : this.pagination.itemsPerPage * (this.pagination.currentPage - 1);
-    this.productService
-      .getProductListAndNavigate(
+    const response = await firstValueFrom(
+      this.productService.getProductListAndNavigate(
         this.pagination.itemsPerPage,
         skip,
         this.pagination.currentPage
       )
-      .subscribe((response) => {
-        this.successResponse(response);
-      });
+    );
+
+    this.successResponse(response);
   }
 }
 function getBlob(

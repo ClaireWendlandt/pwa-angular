@@ -22,10 +22,10 @@
                   <p>{{ product.category }}</p>
                   <p>{{ product.price }}</p>
                </mat-card-content>
-               <mat-card-actions>
+               <mat-card-actions class="cardsAction">
                   @if(product.id){
                      <button
-                        class="productButton"
+                        class="productButton updateOrView"
                         mat-raised-button
                         [routerLink]="['/product-form', product.id]"
                      >
@@ -33,14 +33,14 @@
                      </button>
                      <button
                         [routerLink]="['/product', product.id]"
-                        class="productButton"
+                        class="productButton updateOrView"
                         mat-raised-button
                      >
                         View
                      </button>
                   } @else {
                      <button
-                        class="productButton"
+                        class="productButton updateOrView"
                         mat-raised-button
                         [routerLink]="['/product-form', product.localDbId]"
                         [queryParams]="{ isPendingProduct: true }"
@@ -48,7 +48,7 @@
                         Update
                      </button>
                      <button
-                        class="productButton"
+                        class="productButton updateOrView"
                         mat-raised-button
                         [routerLink]="['/product', product.localDbId]"
                         [queryParams]="{ isPendingProduct: true }"
