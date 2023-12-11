@@ -62,7 +62,6 @@ export class ProductsComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.route.queryParams.subscribe(async (params) => {
       if (params['page']) {
-        console.log('params :', params);
         let pageNumber = parseInt(params['page']);
 
         if (
@@ -72,7 +71,6 @@ export class ProductsComponent implements OnInit {
           pageNumber = 1;
         }
         this.pagination.currentPage = pageNumber;
-        console.log('getAllProducts from on init');
         await this.getAllProducts();
       } else {
         this.router.navigate([], {
@@ -113,7 +111,6 @@ export class ProductsComponent implements OnInit {
   });
 
   pageChange(): void {
-    console.log('getAllProducts from pagechange');
     this.getAllProducts();
   }
 
@@ -125,7 +122,6 @@ export class ProductsComponent implements OnInit {
       this.allProducts
     );
 
-    console.log('rresss', this.allProducts);
     await db.bulkPutTableLines(
       productCachedKey,
       this.allProducts?.products as ProductType[]

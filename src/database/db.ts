@@ -50,7 +50,6 @@ export class AppDB extends Dexie {
     tableName: string,
     items: Type[]
   ): Promise<void> {
-    console.log('item ::', items);
     this.table(tableName).bulkPut(items);
   }
 
