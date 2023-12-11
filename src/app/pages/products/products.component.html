@@ -12,7 +12,16 @@
                <mat-card-header>
                   <mat-card-title class="title">{{ product.title }}</mat-card-title>
                </mat-card-header>
-               <img class="image" mat-card-image [src]="product.images[0]" [alt]="product.title">
+                  <img
+                     class="image"
+                     mat-card-image
+                     [src]="getImage(
+                        product.localDbPicture ||
+                        product.images[0] ||
+                        undefined
+                     )"
+                     [alt]="product.title"
+                  >
                <mat-card-content
                   class="content"
                >

@@ -75,6 +75,13 @@ export class ProductsComponent implements OnInit {
         console.log('getAllProducts from on init');
         await this.getAllProducts();
       } else {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {
+            page: 1,
+          },
+          queryParamsHandling: 'merge',
+        });
         // set search params to page default current page
         //this.pagination.currentPage
       }
@@ -114,38 +121,19 @@ export class ProductsComponent implements OnInit {
     this.allProducts = response as AllProductType;
     await db.deleteTable(productCachedKey);
 
-    // for (let product of this.allProducts.products) {
-    //   console.log(product);
-    //   const imageBlob = await this.imageService.getImageBlob(product.images[0]);
-    //   console.log('image blob', imageBlob);
-    //   product.localDbPicture = await this.imageService.getImageBlob(
-    //     product.images[0]
-    //   );
-    //   break;
-    // }
-
-    // this.allProducts.products.forEach(async (product) => {
-    //   console.log('product', product);
-    //   const imageBlob = await this.imageService.getImageBlob(product.images[0]);
-    //   console.log(imageBlob);
-    // });
-
-    // const imagePromises = this.allProducts.products.map((product) =>
-    //   this.imageService
-    //     .getImageBlob(product.images[0])
-    //     .then((imageBlob) => {
-    //       console.log('tessst');
-    //     })
-    //     .catch((err) => console.log('error', err))
-    // );
-
-    // await Promise.all(imagePromises);
+    for (let product of this.allProducts.products) {
+      product.localDbPicture = await this.imageService.getImageBlob(
+        product.images[0]
+      );
+      await db.addTableLines(productCachedKey, product as ProductType);
+      break;
+    }
 
     console.log('rresss', this.allProducts);
-    await db.bulkAddTableLines(
-      productCachedKey,
-      this.allProducts?.products as ProductType[]
-    );
+    // await db.bulkAddTableLines(
+    //   productCachedKey,
+    //   this.allProducts?.products as ProductType[]
+    // );
   }
 
   private refreshData = effect(() => {
@@ -170,11 +158,15 @@ export class ProductsComponent implements OnInit {
 
     this.successResponse(response);
   }
-}
-function getBlob(
-  arg0: string
-):
-  | import('../../type/product.type').ProductImage
-  | PromiseLike<import('../../type/product.type').ProductImage> {
-  throw new Error('Function not implemented.');
+
+  getImage(picture: Blob | string | undefined) {
+    // if image is already stored in localDBPicture, always use it for more performances
+    if (picture instanceof Blob) {
+      return URL.createObjectURL(picture);
+    } else if (typeof picture === 'string') {
+      return picture;
+    } else {
+      return 'assets/icons/noImage.png';
+    }
+  }
 }
