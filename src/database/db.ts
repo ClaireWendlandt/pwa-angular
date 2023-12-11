@@ -9,7 +9,7 @@ export class AppDB extends Dexie {
   constructor() {
     super('ngdexieliveQuery');
     // this.recreateDB();
-    this.version(4).stores({
+    this.version(5).stores({
       productCached: '++id',
       waitingProduct: '++localDbId, id',
     });
@@ -46,12 +46,12 @@ export class AppDB extends Dexie {
   async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
     this.table(tableName).add(item);
   }
-  async bulkAddTableLines<Type>(
+  async bulkPutTableLines<Type>(
     tableName: string,
     items: Type[]
   ): Promise<void> {
     console.log('item ::', items);
-    this.table(tableName).bulkAdd(items);
+    this.table(tableName).bulkPut(items);
   }
 
   async updateTableLines<Type>(

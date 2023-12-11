@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Dexie } from 'dexie';
 import { firstValueFrom } from 'rxjs';
 import { AllProductType } from '../type/product.type';
 
@@ -9,7 +8,6 @@ import { AllProductType } from '../type/product.type';
 })
 export class ImageService {
   constructor(private http: HttpClient) {}
-  db = new Dexie('waitingProduddct');
 
   async storePicturesAsBlobFormat(allProducts: AllProductType) {
     for (let product of allProducts.products) {
@@ -18,7 +16,7 @@ export class ImageService {
     return allProducts;
   }
 
-  getImageBlob(imageUrl: string) {
+  async getImageBlob(imageUrl: string) {
     return firstValueFrom(this.http.get(imageUrl, { responseType: 'blob' }));
   }
 }

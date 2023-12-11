@@ -126,7 +126,7 @@ export class ProductsComponent implements OnInit {
     );
 
     console.log('rresss', this.allProducts);
-    await db.bulkAddTableLines(
+    await db.bulkPutTableLines(
       productCachedKey,
       this.allProducts?.products as ProductType[]
     );
@@ -150,7 +150,6 @@ export class ProductsComponent implements OnInit {
         this.pagination.currentPage
       )
     );
-
     this.successResponse(response);
   }
 
