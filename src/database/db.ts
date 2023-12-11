@@ -9,7 +9,7 @@ export class AppDB extends Dexie {
   constructor() {
     super('ngdexieliveQuery');
     // this.recreateDB();
-    this.version(1).stores({
+    this.version(4).stores({
       productCached: '++id',
       waitingProduct: '++localDbId, id',
     });

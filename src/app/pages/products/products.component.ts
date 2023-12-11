@@ -121,25 +121,20 @@ export class ProductsComponent implements OnInit {
     this.allProducts = response as AllProductType;
     await db.deleteTable(productCachedKey);
 
-    for (let product of this.allProducts.products) {
-      product.localDbPicture = await this.imageService.getImageBlob(
-        product.images[0]
-      );
-      await db.addTableLines(productCachedKey, product as ProductType);
-      break;
-    }
+    this.allProducts = await this.imageService.storePicturesAsBlobFormat(
+      this.allProducts
+    );
 
     console.log('rresss', this.allProducts);
-    // await db.bulkAddTableLines(
-    //   productCachedKey,
-    //   this.allProducts?.products as ProductType[]
-    // );
+    await db.bulkAddTableLines(
+      productCachedKey,
+      this.allProducts?.products as ProductType[]
+    );
   }
 
   private refreshData = effect(() => {
     if (this.connexionService.isUserOnline()) {
-      console.log('getAllProducts from is useronline');
-      // this.getAllProducts();
+      this.getAllProducts();
     }
   });
 
