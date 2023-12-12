@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ConnexionService } from '../../services/connexion/connexion.service';
 
 export type PaginationType = {
   totalItems: number;
@@ -16,6 +17,12 @@ export class PaginationComponent {
   @Input({ required: true }) pagination!: PaginationType;
 
   @Output() pageChange = new EventEmitter<number>();
+
+  constructor(private connexionService: ConnexionService) {}
+
+  get isOnline() {
+    return this.connexionService.isUserOnline();
+  }
 
   get firstNumber(): number {
     if (this.pagination.totalItems === 0) {

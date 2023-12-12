@@ -59,7 +59,21 @@ export class ProductsComponent implements OnInit {
     private imageService: ImageService
   ) {}
 
+  get isOnline() {
+    return this.connexionService.isUserOnline();
+  }
+
   async ngOnInit(): Promise<void> {
+    this.productCached$.subscribe((products) => {
+      this.productCachedList.set(products);
+    });
+
+    this.waitingProduct$.subscribe((products) => {
+      this.waitingProductList.set(products);
+    });
+  }
+
+  getDataproductsFromPagination() {
     this.route.queryParams.subscribe(async (params) => {
       if (params['page']) {
         let pageNumber = parseInt(params['page']);
@@ -80,17 +94,7 @@ export class ProductsComponent implements OnInit {
           },
           queryParamsHandling: 'merge',
         });
-        // set search params to page default current page
-        //this.pagination.currentPage
       }
-    });
-
-    this.productCached$.subscribe((products) => {
-      this.productCachedList.set(products);
-    });
-
-    this.waitingProduct$.subscribe((products) => {
-      this.waitingProductList.set(products);
     });
   }
 
@@ -111,27 +115,29 @@ export class ProductsComponent implements OnInit {
   });
 
   pageChange(): void {
-    this.getAllProducts();
+    this.productService.navigateToFoo(this.pagination.currentPage);
   }
 
   async successResponse(response: AllProductType) {
     this.allProducts = response as AllProductType;
     await db.deleteTable(productCachedKey);
 
-    this.allProducts = await this.imageService.storePicturesAsBlobFormat(
+    const newProductsCached = await this.imageService.storePicturesAsBlobFormat(
       this.allProducts
     );
 
     await db.bulkPutTableLines(
       productCachedKey,
-      this.allProducts?.products as ProductType[]
+      newProductsCached.products as ProductType[]
     );
   }
 
-  private refreshData = effect(() => {
-    if (this.connexionService.isUserOnline()) {
-      this.getAllProducts();
+  private refreshData = effect(async () => {
+    if (await this.connexionService.isUserOnline()) {
+      this.getDataproductsFromPagination();
     }
+    // console.log('user is online !!!!!', this.connexionService.isUserOnline());
+    //
   });
 
   public async getAllProducts() {

@@ -35,7 +35,6 @@ export class ProductService {
   }
 
   getProductListAndNavigate(limit: number, skip: number, currentPage: number) {
-    this.navigateToFoo(currentPage);
     return this.getProductList(limit, skip);
   }
 
