@@ -47,6 +47,7 @@ export class ConnexionService {
     renderer.listen('window', 'online', () => {
       console.log('je passe la ???');
       this.isUserOnline.set(true);
+      this.networkRetryService.sendPendingRequests();
     });
     renderer.listen('window', 'offline', () => {
       console.log('je passe ici ???');
