@@ -30,10 +30,8 @@ export class ConnexionService {
       });
 
       if (response.status === 200) {
-        console.log('Je passe ici 1');
         this.isUserOnline.set(true); // Internet connection is active
       } else {
-        console.log('Je passe ici 2');
         this.isUserOnline.set(false);
       }
     } catch (error) {
@@ -42,16 +40,11 @@ export class ConnexionService {
   }
 
   listenOnline(renderer: Renderer2) {
-    console.log('coucou???');
-    // this.isOnline();
     renderer.listen('window', 'online', () => {
-      console.log('je passe la ???');
       this.isUserOnline.set(true);
       this.networkRetryService.sendPendingRequests();
     });
     renderer.listen('window', 'offline', () => {
-      console.log('je passe ici ???');
-
       this.isOnline();
     });
   }
