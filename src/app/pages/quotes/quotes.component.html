@@ -1,0 +1,18 @@
+<div class="title" dti="randomQuote">Pick up a category to get a quote
+</div>
+
+<div class="categories">
+   @for (category of categories; track $index) {
+      {{getDynamicColor()}}
+      <button
+         [style.background-color]="primaryColor"
+         mat-raised-button
+         dti="quoteButton"
+         (click)="getRandomQuote()"
+         class="quoteButton"
+         layout="row" layout-align="center"
+      >
+         {{category}}
+      </button>
+   }
+</div>

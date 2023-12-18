@@ -4,6 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ProductFormComponent } from './pages/products/product-form/product-form.component';
 import { ProductComponent } from './pages/products/product/product.component';
 import { ProductsComponent } from './pages/products/products.component';
+import { QuotesComponent } from './pages/quotes/quotes.component';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,11 @@ export const routes: Routes = [
         path: 'product-form/:id',
         component: ProductFormComponent,
         title: 'Update a product',
+      },
+      {
+        path: 'quotes',
+        component: QuotesComponent,
+        title: 'Random quote',
       },
     ],
   },

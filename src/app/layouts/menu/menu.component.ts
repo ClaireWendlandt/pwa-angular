@@ -14,7 +14,7 @@ export class MenuComponent implements OnInit {
   items = [
     { label: 'Home', disabled: false },
     { label: 'Products', disabled: false },
-    { label: 'User', disabled: true },
+    { label: 'Quotes', disabled: false },
     { label: 'Logout', disabled: true },
   ];
 
