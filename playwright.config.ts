@@ -37,17 +37,30 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-
+    {
+      name: 'edge',
+      use: { ...devices['Desktop Edge'] },
+    },
+    {
+      name: 'Iphone12',
+      use: { ...devices['iPhone 12'] },
+    },
+    {
+      name: 'IpadPro11',
+      use: { ...devices['iPad Pro 11'] },
+    },
+    {
+      name: 'GalaxyS9+',
+      use: { ...devices['Galaxy S9+'] },
+    },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',

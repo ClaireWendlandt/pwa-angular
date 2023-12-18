@@ -65,9 +65,11 @@ export class QuotesComponent implements OnInit {
     throw new Error('Method not implemented.');
   }
 
-  getRandomQuote() {}
+  getRandomQuote(category: string): void {
+    console.log('category:', category);
+  }
 
-  getDynamicColor() {
-    this.primaryColor = `hsl(${Math.floor(Math.random() * 720)}, 50%, 80%)`;
+  getDynamicColor(): void {
+    this.primaryColor = `hsl(${Math.floor(Math.random() * 360)}, 80%, 70%)`;
   }
 }

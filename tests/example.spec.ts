@@ -9,5 +9,5 @@ test('Has user network status', async ({ page }) => {
 
 test('go to products and get product list', async ({ page }) => {
   await page.goto('http://127.0.0.1:8080/');
-  await page.getByText(' PRODUCTS ').click();
+  await page.getByText(' Products ', { exact: true }).click();
 });
