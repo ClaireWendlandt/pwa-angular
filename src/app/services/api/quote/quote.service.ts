@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuoteAPI } from '../../../enums/enums';
@@ -7,7 +7,7 @@ import { QuoteType } from '../../../type/quote.type';
 @Injectable({
   providedIn: 'root',
 })
-export class ProductService {
+export class QuoteService {
   constructor(
     private httpClient: HttpClient,
     private router: Router,
@@ -18,8 +18,13 @@ export class ProductService {
   //   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
   getOneQuote(category: string) {
-    return this.httpClient.get<QuoteType>(
-      `${QuoteAPI.QuoteGetByCategory}${category}`
+    const headers = new HttpHeaders({
+      'X-Api-Key': QuoteAPI.ApiKey,
+    });
+
+    return this.httpClient.get<QuoteType[]>(
+      `${QuoteAPI.QuoteGetByCategory}${category}`,
+      { headers: headers }
     );
   }
 }

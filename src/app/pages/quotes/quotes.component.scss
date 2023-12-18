@@ -12,4 +12,8 @@
 .quoteButton {
    border-left-style: inset;
    margin-left: -5px;
+   &:hover {
+      font-weight: 700;
+      padding: 10px 30px;
+   }
  }

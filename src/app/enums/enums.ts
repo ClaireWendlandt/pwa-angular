@@ -10,6 +10,7 @@ export enum QuoteAPI {
   QuoteListEndpoint = 'v1/quotes',
   QuoteCategory = '?category=',
   QuoteGetByCategory = `${QuoteUrl}${QuoteListEndpoint}${QuoteCategory}`,
+  ApiKey = 'rYbFmFH678x4grMOzG3dYQ==3Rm0ov2n57myijhn',
 }
 
 export const productCachedKey = 'productCached';
