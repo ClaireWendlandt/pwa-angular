@@ -1,10 +1,12 @@
 import Dexie, { Table } from 'dexie';
 import { LocalDbType } from '../app/type/db.type';
 import { ProductType } from '../app/type/product.type';
+import { QuoteType } from '../app/type/quote.type';
 
 export class AppDB extends Dexie {
   productCached!: Table<ProductType>;
   waitingProduct!: Table<ProductType & { localDbId: number }>;
+  favoriteQuote!: Table<QuoteType>;
 
   constructor() {
     super('ngdexieliveQuery');
@@ -12,6 +14,7 @@ export class AppDB extends Dexie {
     this.version(5).stores({
       productCached: '++id',
       waitingProduct: '++localDbId, id',
+      favoriteQuote: '++id',
     });
   }
 

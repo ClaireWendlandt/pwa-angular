@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Renderer2,
+  WritableSignal,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { QuoteService } from '../../services/api/quote/quote.service';
 import { QuoteType } from '../../type/quote.type';
@@ -13,7 +19,9 @@ import { QuoteType } from '../../type/quote.type';
 })
 export class QuotesComponent implements OnInit {
   primaryColor = '';
-  quote: QuoteType | undefined;
+  quote: WritableSignal<QuoteType | undefined> = signal(undefined);
+  addedToFavorite: WritableSignal<boolean> = signal(false);
+
   categories = [
     'alone',
     'amazing',
@@ -63,7 +71,11 @@ export class QuotesComponent implements OnInit {
     'movies',
     'success',
   ];
-  constructor(private quoteService: QuoteService) {}
+  constructor(
+    private quoteService: QuoteService,
+    private renderer: Renderer2
+  ) {}
+
   ngOnInit(): void {}
 
   getRandomQuote(category: string): void {
@@ -81,7 +93,7 @@ export class QuotesComponent implements OnInit {
       .subscribe(
         (quotes: QuoteType[]) => {
           if (quotes.length > 0) {
-            this.quote = quotes[0];
+            this.quote.set(quotes[0]);
             console.log('Quote:', quotes);
           } else {
             console.log('No quotes found for category:', category);
@@ -91,10 +103,14 @@ export class QuotesComponent implements OnInit {
           console.error('Error fetching quotes:', error);
         }
       );
-    console.log('category:', this.quote);
   }
 
   getDynamicColor(): void {
     this.primaryColor = `hsl(${Math.floor(Math.random() * 360)}, 80%, 70%)`;
+  }
+
+  addOrRemoveToFavorite() {
+    if (this.addedToFavorite()) {
+    }
   }
 }

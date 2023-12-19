@@ -15,3 +15,4 @@ export enum QuoteAPI {
 
 export const productCachedKey = 'productCached';
 export const waitingProductKey = 'waitingProduct';
+export const favoriteQuoteKey = 'favoriteQuote';

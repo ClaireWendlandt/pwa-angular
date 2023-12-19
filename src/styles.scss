@@ -37,3 +37,10 @@ $pwa-angular-theme: mat.define-light-theme((
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+@font-face {
+  font-family: 'Lobster';
+  src: url('../src/assets/fonts/lobster/Lobster-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}

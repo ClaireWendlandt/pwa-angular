@@ -16,3 +16,21 @@
       </button>
    }
 </div>
+@if (quote() !== undefined) {
+   <div #quoteContainer class="quote-container">
+      <div class="quote">
+         {{ quote()?.quote }}
+      </div>
+      <div class="author">
+         {{quote()?.author}}
+      </div>
+   </div>
+   <div>
+      <img 
+         src="{{ addedToFavorite() ?
+            'assets/icons/favoriteAdd.svg' :
+            'assets/icons/favorite.svg' }}"
+            (click)="addOrRemoveToFavorite()"
+      />
+   </div>
+}
