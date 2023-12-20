@@ -118,7 +118,10 @@ export class ProductFormComponent implements OnDestroy {
       this.productForm.addControl('id', new FormControl(this.productId));
     }
     if (localDbId) {
-      this.productForm.addControl('localDbId', new FormControl(localDbId));
+      this.productForm.addControl(
+        'localDbId',
+        new FormControl(localDbId as number)
+      );
     }
 
     this.productForm.patchValue({

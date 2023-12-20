@@ -51,4 +51,16 @@
  .author {
    text-align: right;
  }
- }
+}
+.bookmark {
+  display: flex;
+  justify-content: end;
+  padding: 40px;
+  align-items: flex-end;
+
+  .favoriteIcon {
+    height: 25px;
+    width: 25px;
+    padding-left: 10px;
+  }
+}

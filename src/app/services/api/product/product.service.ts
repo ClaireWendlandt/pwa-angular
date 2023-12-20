@@ -73,7 +73,7 @@ export class ProductService {
           )
           .subscribe((res) => {
             if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProductKey, localDbId);
+              db.deleteTableLines(waitingProductKey, localDbId as number);
             }
           });
         // no id, it's a create
@@ -90,7 +90,7 @@ export class ProductService {
           )
           .subscribe((res) => {
             if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProductKey, localDbId);
+              db.deleteTableLines(waitingProductKey, localDbId as number);
             }
           });
       }

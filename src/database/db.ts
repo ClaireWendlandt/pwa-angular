@@ -11,10 +11,10 @@ export class AppDB extends Dexie {
   constructor() {
     super('ngdexieliveQuery');
     // this.recreateDB();
-    this.version(5).stores({
+    this.version(7).stores({
       productCached: '++id',
       waitingProduct: '++localDbId, id',
-      favoriteQuote: '++id',
+      favoriteQuote: '++localDbId, id',
     });
   }
 
@@ -67,7 +67,10 @@ export class AppDB extends Dexie {
     this.table(tableName).clear();
   }
 
-  async deleteTableLines(tableName: string, key: number): Promise<void> {
+  async deleteTableLines(
+    tableName: string,
+    key: number | string
+  ): Promise<void> {
     this.table(tableName).delete(key);
   }
 }

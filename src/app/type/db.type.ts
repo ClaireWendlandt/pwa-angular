@@ -1,7 +1,7 @@
 import { FormControl } from '@angular/forms';
 
 export type LocalDbType = {
-  localDbId?: number;
+  localDbId?: number | string;
 };
 
 export type LocalDbPictureType = {

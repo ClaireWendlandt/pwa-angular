@@ -7,8 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { db } from '../../../database/db';
+import { favoriteQuoteKey } from '../../enums/enums';
 import { QuoteService } from '../../services/api/quote/quote.service';
 import { QuoteType } from '../../type/quote.type';
+import { generateUniqId } from '../../utility/id.utility';
 
 @Component({
   selector: 'app-quotes',
@@ -111,6 +114,16 @@ export class QuotesComponent implements OnInit {
 
   addOrRemoveToFavorite() {
     if (this.addedToFavorite()) {
+      this.addedToFavorite.set(false);
+      db.deleteTableLines(favoriteQuoteKey, this.quote()?.localDbId as string);
+    } else {
+      const localDbId = generateUniqId();
+      this.addedToFavorite.set(true);
+      this.quote.set({
+        ...(this.quote() as QuoteType),
+        localDbId: localDbId,
+      });
+      db.addTableLines(favoriteQuoteKey, this.quote());
     }
   }
 }

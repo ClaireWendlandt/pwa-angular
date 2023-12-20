@@ -3,7 +3,7 @@
 
 <div class="categories">
    @for (category of categories; track $index) {
-      {{getDynamicColor()}}
+      {{ getDynamicColor() }}
       <button
          [style.background-color]="primaryColor"
          mat-raised-button
@@ -17,7 +17,10 @@
    }
 </div>
 @if (quote() !== undefined) {
-   <div #quoteContainer class="quote-container">
+   <div
+      #quoteContainer
+      class="quote-container"
+   >
       <div class="quote">
          {{ quote()?.quote }}
       </div>
@@ -25,12 +28,16 @@
          {{quote()?.author}}
       </div>
    </div>
-   <div>
-      <img 
+   <div
+      class="bookmark"
+      (click)="addOrRemoveToFavorite()"
+   >
+      Let's bookmark this quote!
+      <img
+         class="favoriteIcon"
          src="{{ addedToFavorite() ?
             'assets/icons/favoriteAdd.svg' :
             'assets/icons/favorite.svg' }}"
-            (click)="addOrRemoveToFavorite()"
       />
    </div>
 }
