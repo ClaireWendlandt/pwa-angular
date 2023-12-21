@@ -85,7 +85,7 @@ export class ProductService {
               if (status !== 200) {
                 db.addTableLines(waitingProductKey, productValues);
               }
-              return throwError(status);
+              return throwError(() => new Error(status));
             })
           )
           .subscribe((res) => {

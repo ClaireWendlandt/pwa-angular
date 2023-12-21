@@ -1,66 +1,81 @@
-@primaryColor: #f0f4ff; // light blue
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
 
-.title{
-   padding: 20px;
-   font-weight: bold;
-   font-size: 20px;
+  .title {
+    font-weight: bold;
+    font-size: 20px;
+  }
 }
 
 .categories {
    padding: 20px;
-}
-.quoteButton {
-   border-left-style: inset;
-   margin-left: -5px;
-   text-transform: uppercase;
-   &:hover {
+   display: flex;
+   flex-wrap: wrap;
+   .quoteButton {
+    border-left-style: inset;
+    margin-left: -5px;
+    text-transform: uppercase;
+    // flex-grow: 1;
+    &:hover {
+      transform: scale(1.2);
       font-weight: 700;
-      padding: 10px 30px;
-   }
- }
-
- @keyframes fadeInUp {
-   from {
-       opacity: 0;
-       transform: translateY(20px);
-   }
-   to {
-       opacity: 1;
-       transform: translateY(0);
-   }
- }
- 
- .quote-container {
-   opacity: 0;
-   transform: translateY(20px);
-   animation: fadeInUp 1s forwards;
-   background-color: #333;
-   color: #fff;
-   padding: 10px;
-   margin: 0 40px;
-   border-radius: 10px;
-   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-   
- .quote {
-   padding: 10px 10%;
-   font-family: 'Lobster';
-   font-size: 30px;
-   text-align: center;
- }
- .author {
-   text-align: right;
- }
+      z-index: 100;
+      // padding: 10px 30px;
+    }
+  }
 }
-.bookmark {
-  display: flex;
-  justify-content: end;
-  padding: 40px;
-  align-items: flex-end;
+ 
+.quoteContainer {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s forwards;
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  margin: 0 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-  .favoriteIcon {
-    height: 25px;
-    width: 25px;
-    padding-left: 10px;
+  .quote {
+    padding: 10px 10%;
+    font-family: 'Lobster';
+    font-size: 30px;
+    text-align: center;
+  }
+
+  .author {
+    text-align: right;
+  }
+}
+
+.bookmark {
+  padding: 40px;
+  span {
+    display: flex;
+    justify-content: end;
+    align-items: flex-end;
+  
+    .favoriteIcon {
+      height: 25px;
+      width: 25px;
+      padding-left: 10px;
+    }
+    
+    &:hover {
+      cursor: pointer;
+     }
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
   }
 }

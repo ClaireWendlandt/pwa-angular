@@ -1,11 +1,22 @@
-<div class="title" dti="randomQuote">Pick up a category to get a quote
+<div
+   class="headerSection"
+>
+   <div
+      class="title"
+      dti="randomQuote"
+   >
+      Pick up a category to get a quote
+   </div>
+   <button
+      mat-raised-button
+   >
+      My quoteworthy collection ({{favoriteQuoteList().length}})
+   </button>
 </div>
-
 <div class="categories">
    @for (category of categories; track $index) {
-      {{ getDynamicColor() }}
       <button
-         [style.background-color]="primaryColor"
+         [style.background-color]="primaryColor[$index]"
          mat-raised-button
          dti="quoteButton"
          (click)="getRandomQuote(category)"
@@ -19,7 +30,7 @@
 @if (quote() !== undefined) {
    <div
       #quoteContainer
-      class="quote-container"
+      class="quoteContainer"
    >
       <div class="quote">
          {{ quote()?.quote }}
@@ -32,12 +43,14 @@
       class="bookmark"
       (click)="addOrRemoveToFavorite()"
    >
-      Let's bookmark this quote!
-      <img
-         class="favoriteIcon"
-         src="{{ addedToFavorite() ?
-            'assets/icons/favoriteAdd.svg' :
-            'assets/icons/favorite.svg' }}"
-      />
+      <span>
+         Let's bookmark this quote!
+         <img
+            class="favoriteIcon"
+            src="{{ addedToFavorite() ?
+               'assets/icons/favoriteAdd.svg' :
+               'assets/icons/favorite.svg' }}"
+         />
+      </span>
    </div>
 }

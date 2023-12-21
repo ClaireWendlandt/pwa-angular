@@ -7,6 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { liveQuery } from 'dexie';
+import { throwError } from 'rxjs';
 import { db } from '../../../database/db';
 import { favoriteQuoteKey } from '../../enums/enums';
 import { QuoteService } from '../../services/api/quote/quote.service';
@@ -21,9 +23,11 @@ import { generateUniqId } from '../../utility/id.utility';
   styleUrl: './quotes.component.scss',
 })
 export class QuotesComponent implements OnInit {
-  primaryColor = '';
+  primaryColor: string[] = [];
   quote: WritableSignal<QuoteType | undefined> = signal(undefined);
   addedToFavorite: WritableSignal<boolean> = signal(false);
+  favoriteQuote$ = liveQuery(() => db.favoriteQuote.toArray());
+  favoriteQuoteList: WritableSignal<QuoteType[]> = signal([]);
 
   categories = [
     'alone',
@@ -79,11 +83,21 @@ export class QuotesComponent implements OnInit {
     private renderer: Renderer2
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getDynamicColor();
+    this.favoriteQuote$.subscribe((quotes) => {
+      this.favoriteQuoteList.set(quotes);
+      console.log('favoirite list:', this.favoriteQuoteList());
+    });
+  }
 
   getRandomQuote(category: string): void {
+    this.addedToFavorite.set(false);
     this.quoteService
       .getOneQuote(category)
+      // .pipe(
+      //   first()
+      // )
       // .pipe(
       //   take(1),
       //   catchError(async ({ status }) => {
@@ -93,23 +107,26 @@ export class QuotesComponent implements OnInit {
       //     return throwError(status);
       //   })
       // )
-      .subscribe(
-        (quotes: QuoteType[]) => {
+      .subscribe({
+        next: (quotes) => {
           if (quotes.length > 0) {
             this.quote.set(quotes[0]);
-            console.log('Quote:', quotes);
+            console.log('next ;) :', this.quote());
           } else {
             console.log('No quotes found for category:', category);
           }
         },
-        (error) => {
-          console.error('Error fetching quotes:', error);
-        }
-      );
+        error: (e) => throwError(() => new Error(e)),
+        complete: () => console.log('complete ;) :', this.quote()),
+      });
+    console.log('outside ;) :', this.quote());
   }
 
   getDynamicColor(): void {
-    this.primaryColor = `hsl(${Math.floor(Math.random() * 360)}, 80%, 70%)`;
+    for (let i = 0; i < this.categories.length; i++) {
+      const color = `hsl(${Math.floor(Math.random() * 360)}, 80%, 70%)`;
+      this.primaryColor.push(color);
+    }
   }
 
   addOrRemoveToFavorite() {
