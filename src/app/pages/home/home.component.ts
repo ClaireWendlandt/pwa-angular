@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, RendererFactory2, effect } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { ConnexionService } from '../../services/connexion/connexion.service';
 
 @Component({
@@ -10,10 +10,9 @@ import { ConnexionService } from '../../services/connexion/connexion.service';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
-  constructor(
-    private connexionService: ConnexionService,
-    private rendererFactory2: RendererFactory2
-  ) {
+  private readonly connexionService = inject(ConnexionService);
+
+  constructor() {
     effect(() => {
       this.connexionService.isUserOnline();
     });

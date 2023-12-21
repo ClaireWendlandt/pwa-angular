@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { liveQuery } from 'dexie';
-import { catchError, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { db } from '../../../../database/db';
 import { ProductAPI, waitingProductKey } from '../../../enums/enums';
 import { AllProductType, ProductType } from '../../../type/product.type';
@@ -11,11 +11,9 @@ import { AllProductType, ProductType } from '../../../type/product.type';
   providedIn: 'root',
 })
 export class ProductService {
-  constructor(
-    private httpClient: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   productCached$ = liveQuery(() => db.productCached.toArray());
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
@@ -60,38 +58,37 @@ export class ProductService {
             `${ProductAPI.ProductListUrl}/${productId}`,
             dataToSend
           )
-          .pipe(
-            catchError((error) => {
-              const { status } = error;
+          .subscribe({
+            error: ({ status }) => {
               if (localDbId) {
                 db.updateTableLines(waitingProductKey, productValues);
               } else {
                 db.addTableLines(waitingProductKey, productValues);
               }
-              return throwError(error);
-            })
-          )
-          .subscribe((res) => {
-            if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProductKey, localDbId as number);
-            }
+              return throwError(() => new Error(status));
+            },
+            complete: () => {
+              if (sendPendingRequest && localDbId) {
+                db.deleteTableLines(waitingProductKey, localDbId as number);
+              }
+            },
           });
         // no id, it's a create
       } else {
         this.httpClient
           .post<ProductType>(`${ProductAPI.ProductAdd}`, productValues)
-          .pipe(
-            catchError(({ status }) => {
+          .subscribe({
+            error: ({ status }) => {
               if (status !== 200) {
                 db.addTableLines(waitingProductKey, productValues);
               }
               return throwError(() => new Error(status));
-            })
-          )
-          .subscribe((res) => {
-            if (sendPendingRequest && localDbId) {
-              db.deleteTableLines(waitingProductKey, localDbId as number);
-            }
+            },
+            complete: () => {
+              if (sendPendingRequest && localDbId) {
+                db.deleteTableLines(waitingProductKey, localDbId as number);
+              }
+            },
           });
       }
       return true;

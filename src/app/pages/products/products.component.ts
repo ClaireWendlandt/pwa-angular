@@ -1,11 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnInit,
-  WritableSignal,
-  effect,
-  signal,
-} from '@angular/core';
+import { Component, OnInit, Signal, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,6 +15,7 @@ import { productCachedKey } from '../../enums/enums';
 import { ProductService } from '../../services/api/product/product.service';
 import { ConnexionService } from '../../services/connexion/connexion.service';
 import { ImageService } from '../../services/image.service';
+import { NetworkRetryService } from '../../services/networkRetry/network-retry.service';
 import { AllProductType, ProductType } from '../../type/product.type';
 
 @Component({
@@ -36,6 +32,13 @@ import { AllProductType, ProductType } from '../../type/product.type';
   styleUrl: './products.component.scss',
 })
 export class ProductsComponent implements OnInit {
+  private readonly productService = inject(ProductService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly connexionService = inject(ConnexionService);
+  private readonly imageService = inject(ImageService);
+  private readonly networkRetryService = inject(NetworkRetryService);
+
   pagination: PaginationType = {
     totalItems: 100,
     itemsPerPage: 10,
@@ -43,34 +46,33 @@ export class ProductsComponent implements OnInit {
   };
 
   allProducts?: AllProductType;
-
-  productCached$ = liveQuery(() => db.productCached.toArray());
-  productCachedList: WritableSignal<ProductType[]> = signal([]);
-  waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
-  waitingProductList: WritableSignal<ProductType[]> = signal([]);
-
   displayProduct?: ProductType[];
-
-  constructor(
-    private productService: ProductService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private connexionService: ConnexionService,
-    private imageService: ImageService
-  ) {}
 
   get isOnline() {
     return this.connexionService.isUserOnline();
   }
 
-  async ngOnInit(): Promise<void> {
-    this.productCached$.subscribe((products) => {
-      this.productCachedList.set(products);
-    });
+  productCachedList: Signal<ProductType[]> = toSignal(
+    liveQuery(() => db.productCached.toArray()),
+    {
+      initialValue: [],
+    }
+  );
 
-    this.waitingProduct$.subscribe((products) => {
-      this.waitingProductList.set(products);
-    });
+  waitingProductList: Signal<ProductType[]> = toSignal(
+    liveQuery(() => db.waitingProduct.toArray()),
+    {
+      initialValue: [],
+    }
+  );
+
+  // this version is only available for developpers preview for the moment,
+  //if this can be used in the future, the version without it is all down the file, and in the oninit
+
+  ngOnInit(): void {
+    if (this.waitingProductList.length > 0 && this.isOnline) {
+      this.networkRetryService.sendPendingRequests();
+    }
   }
 
   getDataproductsFromPagination() {
@@ -136,8 +138,6 @@ export class ProductsComponent implements OnInit {
     if (await this.connexionService.isUserOnline()) {
       this.getDataproductsFromPagination();
     }
-    // console.log('user is online !!!!!', this.connexionService.isUserOnline());
-    //
   });
 
   public async getAllProducts() {
@@ -166,3 +166,18 @@ export class ProductsComponent implements OnInit {
     }
   }
 }
+
+// productCached$ = liveQuery(() => db.productCached.toArray());
+// productCachedList: WritableSignal<ProductType[]> = signal([]);
+// waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
+// waitingProductList: WritableSignal<ProductType[]> = signal([]);
+
+// async ngOnInit(): Promise<void> {
+//   this.productCached$.subscribe((products) => {
+//     this.productCachedList.set(products);
+//   });
+
+//   this.waitingProduct$.subscribe((products) => {
+//     this.waitingProductList.set(products);
+//   });
+// }

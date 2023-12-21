@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -32,6 +31,10 @@ import { ProductFormType, ProductType } from '../../../type/product.type';
   styleUrl: './product-form.component.scss',
 })
 export class ProductFormComponent implements OnDestroy {
+  private readonly productService = inject(ProductService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   productCached$ = liveQuery(() => db.productCached.toArray());
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
@@ -52,19 +55,14 @@ export class ProductFormComponent implements OnDestroy {
     images: new FormControl('', [Validators.required]),
   });
 
-  constructor(
-    private productService: ProductService,
-    private httpClient: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  constructor() {
     this.route.queryParams.subscribe((params) => {
       this.isPendingProduct = params['isPendingProduct'];
     });
     this.route.params.subscribe((params) => {
       this.productId = parseInt(params['id']);
       if (this.productId) {
-        productService
+        this.productService
           .getOneProduct(this.productId)
           .pipe(
             take(1),
@@ -72,7 +70,7 @@ export class ProductFormComponent implements OnDestroy {
               if (status !== 200) {
                 this.usePendingDatas();
               }
-              return throwError(status);
+              return throwError(() => new Error(status));
             })
           )
           .subscribe((product) => {
@@ -89,26 +87,17 @@ export class ProductFormComponent implements OnDestroy {
       this.productId as number
     );
 
-    setTimeout(async () => {
-      if (product) {
-        this.initForm(product);
-      } else {
-        const cachedProduct = await db.getTableLine<ProductType>(
-          productCachedKey,
-          this.productId as number
-        );
-        if (cachedProduct) {
-          setTimeout(() => {
-            this.initForm(cachedProduct);
-          }, 10);
-        }
+    if (product) {
+      this.initForm(product);
+    } else {
+      const cachedProduct = await db.getTableLine<ProductType>(
+        productCachedKey,
+        this.productId as number
+      );
+      if (cachedProduct) {
+        this.initForm(cachedProduct);
       }
-    }, 100);
-  }
-
-  ngOnDestroy(): void {
-    this.productCached$;
-    this.waitingProduct$;
+    }
   }
 
   initForm(product: ProductType) {
@@ -145,5 +134,10 @@ export class ProductFormComponent implements OnDestroy {
 
   goToProducts(): void {
     this.router.navigate(['/products']);
+  }
+
+  ngOnDestroy(): void {
+    this.productCached$;
+    this.waitingProduct$;
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 
@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
   styleUrl: './menu.component.scss',
 })
 export class MenuComponent implements OnInit {
+  private readonly router = inject(Router);
+
   items = [
     { label: 'Home', disabled: false },
     { label: 'Products', disabled: false },
@@ -19,8 +21,6 @@ export class MenuComponent implements OnInit {
   ];
 
   activeLink: string = '';
-
-  constructor(private router: Router) {}
 
   ngOnInit() {
     const currentUrl: string = this.router.url.substring(1);

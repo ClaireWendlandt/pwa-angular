@@ -1,4 +1,10 @@
-import { Injectable, Renderer2, RendererFactory2, signal } from '@angular/core';
+import {
+  Injectable,
+  Renderer2,
+  RendererFactory2,
+  inject,
+  signal,
+} from '@angular/core';
 import { liveQuery } from 'dexie';
 import { db } from '../../../database/db';
 import { NetworkRetryService } from '../networkRetry/network-retry.service';
@@ -7,18 +13,15 @@ import { NetworkRetryService } from '../networkRetry/network-retry.service';
   providedIn: 'root',
 })
 export class ConnexionService {
-  isUserOnline = signal(navigator.onLine ? true : false);
-  // isUserOnline: WritableSignal<boolean | undefined> = signal(undefined);
+  private readonly rendererFactory2 = inject(RendererFactory2);
+  private readonly networkRetryService = inject(NetworkRetryService);
 
+  isUserOnline = signal(navigator.onLine ? true : false);
   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
 
-  constructor(
-    private rendererFactory2: RendererFactory2,
-    private networkRetryService: NetworkRetryService
-  ) {
+  constructor() {
     const renderer = this.rendererFactory2.createRenderer(null, null);
     this.listenOnline(renderer);
-    console.log('isUserOnline', this.isUserOnline());
   }
 
   async isOnline() {

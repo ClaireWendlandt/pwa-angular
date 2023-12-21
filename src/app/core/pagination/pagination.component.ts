@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ConnexionService } from '../../services/connexion/connexion.service';
 
 export type PaginationType = {
@@ -18,7 +18,7 @@ export class PaginationComponent {
 
   @Output() pageChange = new EventEmitter<number>();
 
-  constructor(private connexionService: ConnexionService) {}
+  private readonly connexionService = inject(ConnexionService);
 
   get isOnline() {
     return this.connexionService.isUserOnline();

@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
 import { QuoteAPI } from '../../../enums/enums';
 import { QuoteType } from '../../../type/quote.type';
 
@@ -8,14 +7,7 @@ import { QuoteType } from '../../../type/quote.type';
   providedIn: 'root',
 })
 export class QuoteService {
-  constructor(
-    private httpClient: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
-
-  //   productCached$ = liveQuery(() => db.productCached.toArray());
-  //   waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
+  private readonly httpClient = inject(HttpClient);
 
   getOneQuote(category: string) {
     const headers = new HttpHeaders({

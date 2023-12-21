@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { db } from '../../../database/db';
 import { waitingProductKey } from '../../enums/enums';
 import { ProductType } from '../../type/product.type';
@@ -8,7 +8,7 @@ import { ProductService } from '../api/product/product.service';
   providedIn: 'root',
 })
 export class NetworkRetryService {
-  constructor(private productService: ProductService) {}
+  private readonly productService = inject(ProductService);
 
   get pendingRequests() {
     return db.table(waitingProductKey).toArray();

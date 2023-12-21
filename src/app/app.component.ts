@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CheckForUpdateService } from './services/checkForUpdate/check-for-update.service';
 import { LogUpdateService } from './services/logUpdate/log-update.service';
@@ -14,10 +14,8 @@ import { PromptUpdateService } from './services/promptUpdate/prompt-update.servi
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  constructor(
-    private logUpdateService: LogUpdateService,
-    private checkForUpdate: CheckForUpdateService,
-    private promptUpdateService: PromptUpdateService,
-    private networkRetryService: NetworkRetryService
-  ) {}
+  private readonly logUpdateService = inject(LogUpdateService);
+  private readonly checkForUpdate = inject(CheckForUpdateService);
+  private readonly promptUpdateService = inject(PromptUpdateService);
+  private readonly networkRetryService = inject(NetworkRetryService);
 }

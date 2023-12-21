@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AllProductType } from '../type/product.type';
 
@@ -7,7 +7,7 @@ import { AllProductType } from '../type/product.type';
   providedIn: 'root',
 })
 export class ImageService {
-  constructor(private http: HttpClient) {}
+  private readonly httpClient = inject(HttpClient);
 
   async storePicturesAsBlobFormat(allProducts: AllProductType) {
     for (let product of allProducts.products) {
@@ -17,6 +17,8 @@ export class ImageService {
   }
 
   async getImageBlob(imageUrl: string) {
-    return firstValueFrom(this.http.get(imageUrl, { responseType: 'blob' }));
+    return firstValueFrom(
+      this.httpClient.get(imageUrl, { responseType: 'blob' })
+    );
   }
 }

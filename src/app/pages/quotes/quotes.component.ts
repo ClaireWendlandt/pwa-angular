@@ -4,6 +4,7 @@ import {
   OnInit,
   Renderer2,
   WritableSignal,
+  inject,
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +24,9 @@ import { generateUniqId } from '../../utility/id.utility';
   styleUrl: './quotes.component.scss',
 })
 export class QuotesComponent implements OnInit {
+  private readonly quoteService = inject(QuoteService);
+  private readonly renderer2 = inject(Renderer2);
+
   primaryColor: string[] = [];
   quote: WritableSignal<QuoteType | undefined> = signal(undefined);
   addedToFavorite: WritableSignal<boolean> = signal(false);
@@ -78,47 +82,25 @@ export class QuotesComponent implements OnInit {
     'movies',
     'success',
   ];
-  constructor(
-    private quoteService: QuoteService,
-    private renderer: Renderer2
-  ) {}
 
   ngOnInit(): void {
     this.getDynamicColor();
     this.favoriteQuote$.subscribe((quotes) => {
       this.favoriteQuoteList.set(quotes);
-      console.log('favoirite list:', this.favoriteQuoteList());
     });
   }
 
   getRandomQuote(category: string): void {
     this.addedToFavorite.set(false);
-    this.quoteService
-      .getOneQuote(category)
-      // .pipe(
-      //   first()
-      // )
-      // .pipe(
-      //   take(1),
-      //   catchError(async ({ status }) => {
-      //     if (status !== 200) {
-      //       // this.usePendingDatas();
-      //     }
-      //     return throwError(status);
-      //   })
-      // )
-      .subscribe({
-        next: (quotes) => {
-          if (quotes.length > 0) {
-            this.quote.set(quotes[0]);
-            console.log('next ;) :', this.quote());
-          } else {
-            console.log('No quotes found for category:', category);
-          }
-        },
-        error: (e) => throwError(() => new Error(e)),
-        complete: () => console.log('complete ;) :', this.quote()),
-      });
+    this.quoteService.getOneQuote(category).subscribe({
+      next: (quotes) => {
+        if (quotes.length > 0) {
+          this.quote.set(quotes[0]);
+        }
+      },
+      error: (e) => throwError(() => new Error(e)),
+      complete: () => console.log('complete ;) :', this.quote()),
+    });
     console.log('outside ;) :', this.quote());
   }
 
