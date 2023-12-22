@@ -7,7 +7,7 @@
    </button>
    <div class="allCards"> 
       @for (product of allProducts?.products; track product?.id || product?.localDbId) {
-         @if (product.id || product.localDbId) {
+         @if (product.localDbPicture &&(product.id || product.localDbId)) {
             <mat-card class="card">
                <mat-card-header>
                   <mat-card-title class="title">{{ product.title }}</mat-card-title>
