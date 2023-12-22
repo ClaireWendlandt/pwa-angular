@@ -11,7 +11,7 @@ export class AppDB extends Dexie {
   constructor() {
     super('ngdexieliveQuery');
     // this.recreateDB();
-    this.version(7).stores({
+    this.version(9).stores({
       productCached: '++id',
       waitingProduct: '++localDbId, id',
       favoriteQuote: '++localDbId, id',
@@ -49,11 +49,21 @@ export class AppDB extends Dexie {
   async addTableLines<Type>(tableName: string, item: Type): Promise<void> {
     this.table(tableName).add(item);
   }
+
   async bulkPutTableLines<Type>(
     tableName: string,
     items: Type[]
   ): Promise<void> {
-    this.table(tableName).bulkPut(items);
+    try {
+      await db.transaction('rw', this.table(tableName), async () => {
+        for (const item of items) {
+          await this.table(tableName).put(item);
+        }
+      });
+    } catch (error) {
+      console.error('Error during bulk put operation:', error);
+      // Handle the error
+    }
   }
 
   async updateTableLines<Type>(

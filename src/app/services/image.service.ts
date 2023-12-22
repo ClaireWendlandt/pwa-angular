@@ -13,7 +13,6 @@ export class ImageService {
     for (let product of allProducts.products) {
       product.localDbPicture = await this.getImageBlob(product.images[0]);
     }
-    return allProducts;
   }
 
   async getImageBlob(imageUrl: string) {

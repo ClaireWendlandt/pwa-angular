@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, Signal, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { liveQuery } from 'dexie';
-import { firstValueFrom } from 'rxjs';
+import { tap } from 'rxjs';
 import { db } from '../../../database/db';
 import {
   PaginationComponent,
@@ -38,6 +39,7 @@ export class ProductsComponent implements OnInit {
   private readonly connexionService = inject(ConnexionService);
   private readonly imageService = inject(ImageService);
   private readonly networkRetryService = inject(NetworkRetryService);
+  private readonly httpClient = inject(HttpClient);
 
   pagination: PaginationType = {
     totalItems: 100,
@@ -47,6 +49,7 @@ export class ProductsComponent implements OnInit {
 
   allProducts?: AllProductType;
   displayProduct?: ProductType[];
+  online = navigator.onLine;
 
   get isOnline() {
     return this.connexionService.isUserOnline();
@@ -87,7 +90,7 @@ export class ProductsComponent implements OnInit {
           pageNumber = 1;
         }
         this.pagination.currentPage = pageNumber;
-        await this.getAllProducts();
+        this.getAllProducts();
       } else {
         this.router.navigate([], {
           relativeTo: this.route,
@@ -114,24 +117,11 @@ export class ProductsComponent implements OnInit {
       limit: newProductsList.length,
       products: newProductsList,
     };
+    console.log('merge products ::', this.allProducts);
   });
 
   pageChange(): void {
     this.productService.navigateToFoo(this.pagination.currentPage);
-  }
-
-  async successResponse(response: AllProductType) {
-    this.allProducts = response as AllProductType;
-    await db.deleteTable(productCachedKey);
-
-    const newProductsCached = await this.imageService.storePicturesAsBlobFormat(
-      this.allProducts
-    );
-
-    await db.bulkPutTableLines(
-      productCachedKey,
-      newProductsCached.products as ProductType[]
-    );
   }
 
   private refreshData = effect(async () => {
@@ -140,21 +130,55 @@ export class ProductsComponent implements OnInit {
     }
   });
 
-  public async getAllProducts() {
+  public getAllProducts() {
     const skip =
       this.pagination.currentPage === 1
         ? 0
         : this.pagination.itemsPerPage * (this.pagination.currentPage - 1);
-    const response = await firstValueFrom(
-      this.productService.getProductListAndNavigate(
+
+    this.productService
+      .getProductListAndNavigate(
         this.pagination.itemsPerPage,
         skip,
         this.pagination.currentPage
       )
-    );
-    this.successResponse(response);
+      .pipe(
+        tap(async (response) => {
+          db.deleteTable(productCachedKey).finally(() => {
+            this.imageService.storePicturesAsBlobFormat(response).then(() => {
+              this.allProducts = response;
+              if (this.allProducts) {
+                db.bulkPutTableLines(
+                  productCachedKey,
+                  response.products as ProductType[]
+                );
+              }
+            });
+            // for (let product of response.products) {
+            //   this.httpClient
+            //     .get(product.images[0], { responseType: 'blob' })
+            //     .subscribe({
+            //       next: (image) => {
+            //         product.localDbPicture = image;
+            //       },
+            //       complete: () => {
+            //         this.allProducts = response;
+            //         if (this.allProducts) {
+            //           db.bulkPutTableLines(
+            //             productCachedKey,
+            //             response.products as ProductType[]
+            //           );
+            //         }
+            //       },
+            //     });
+            // }
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {},
+      });
   }
-
   getImage(picture: Blob | string | undefined) {
     // if image is already stored in localDBPicture, always use it for more performances
     if (picture instanceof Blob) {

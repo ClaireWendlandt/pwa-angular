@@ -3,11 +3,14 @@ import {
   Component,
   OnInit,
   Renderer2,
+  Signal,
   WritableSignal,
   inject,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 import { liveQuery } from 'dexie';
 import { throwError } from 'rxjs';
 import { db } from '../../../database/db';
@@ -19,7 +22,7 @@ import { generateUniqId } from '../../utility/id.utility';
 @Component({
   selector: 'app-quotes',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [CommonModule, MatButtonModule, RouterModule],
   templateUrl: './quotes.component.html',
   styleUrl: './quotes.component.scss',
 })
@@ -31,7 +34,9 @@ export class QuotesComponent implements OnInit {
   quote: WritableSignal<QuoteType | undefined> = signal(undefined);
   addedToFavorite: WritableSignal<boolean> = signal(false);
   favoriteQuote$ = liveQuery(() => db.favoriteQuote.toArray());
-  favoriteQuoteList: WritableSignal<QuoteType[]> = signal([]);
+  favoriteQuoteList: Signal<QuoteType[]> = toSignal(this.favoriteQuote$, {
+    initialValue: [],
+  });
 
   categories = [
     'alone',
@@ -85,9 +90,6 @@ export class QuotesComponent implements OnInit {
 
   ngOnInit(): void {
     this.getDynamicColor();
-    this.favoriteQuote$.subscribe((quotes) => {
-      this.favoriteQuoteList.set(quotes);
-    });
   }
 
   getRandomQuote(category: string): void {

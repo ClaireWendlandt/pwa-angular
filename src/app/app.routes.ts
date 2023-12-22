@@ -4,6 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ProductFormComponent } from './pages/products/product-form/product-form.component';
 import { ProductComponent } from './pages/products/product/product.component';
 import { ProductsComponent } from './pages/products/products.component';
+import { FavoriteQuotesComponent } from './pages/quotes/favorite-quotes/favorite-quotes.component';
 import { QuotesComponent } from './pages/quotes/quotes.component';
 
 export const routes: Routes = [
@@ -45,6 +46,11 @@ export const routes: Routes = [
         path: 'quotes',
         component: QuotesComponent,
         title: 'Random quote',
+      },
+      {
+        path: 'favorite-quotes',
+        component: FavoriteQuotesComponent,
+        title: 'My favorite quotes',
       },
     ],
   },
