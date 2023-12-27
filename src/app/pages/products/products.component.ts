@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, Signal, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +38,6 @@ export class ProductsComponent implements OnInit {
   private readonly connexionService = inject(ConnexionService);
   private readonly imageService = inject(ImageService);
   private readonly networkRetryService = inject(NetworkRetryService);
-  private readonly httpClient = inject(HttpClient);
 
   pagination: PaginationType = {
     totalItems: 100,
@@ -69,8 +67,32 @@ export class ProductsComponent implements OnInit {
     }
   );
 
-  // this version is only available for developpers preview for the moment,
-  //if this can be used in the future, the version without it is all down the file, and in the oninit
+  constructor() {
+    effect(() => {
+      if (this.online) {
+        this.getDataproductsFromPagination();
+      } else {
+        // add tmp datas added by client in the page until the request is send when user is online again
+        if (this.waitingProductList().length > 0) {
+          this.waitingProductList().forEach((wp) => {
+            const index = this.productCachedList().findIndex(
+              (product) => wp.id === product.id
+            );
+            const newProductsList: ProductType[] = [
+              ...this.productCachedList(),
+            ];
+            index !== -1
+              ? (newProductsList[index] = wp)
+              : newProductsList.push(wp);
+
+            this.allProducts = this.allProductList(newProductsList);
+          });
+        } else {
+          this.allProducts = this.allProductList(this.productCachedList());
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     if (this.waitingProductList.length > 0 && this.isOnline) {
@@ -103,32 +125,9 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  private mergeProducts = effect(() => {
-    const newProductsList: ProductType[] = [...this.productCachedList()];
-    this.waitingProductList().forEach((wp) => {
-      const index = this.productCachedList().findIndex(
-        (product) => wp.id === product.id
-      );
-
-      index !== -1 ? (newProductsList[index] = wp) : newProductsList.push(wp);
-    });
-    this.allProducts = {
-      total: newProductsList.length,
-      limit: newProductsList.length,
-      products: newProductsList,
-    };
-    console.log('merge products ::', this.allProducts);
-  });
-
   pageChange(): void {
     this.productService.navigateToFoo(this.pagination.currentPage);
   }
-
-  private refreshData = effect(async () => {
-    if (await this.connexionService.isUserOnline()) {
-      this.getDataproductsFromPagination();
-    }
-  });
 
   public getAllProducts() {
     const skip =
@@ -144,41 +143,38 @@ export class ProductsComponent implements OnInit {
       )
       .pipe(
         tap(async (response) => {
-          db.deleteTable(productCachedKey).finally(() => {
-            this.imageService.storePicturesAsBlobFormat(response).then(() => {
-              this.allProducts = response;
-              if (this.allProducts) {
-                db.bulkPutTableLines(
-                  productCachedKey,
-                  response.products as ProductType[]
-                );
-              }
-            });
-            // for (let product of response.products) {
-            //   this.httpClient
-            //     .get(product.images[0], { responseType: 'blob' })
-            //     .subscribe({
-            //       next: (image) => {
-            //         product.localDbPicture = image;
-            //       },
-            //       complete: () => {
-            //         this.allProducts = response;
-            //         if (this.allProducts) {
-            //           db.bulkPutTableLines(
-            //             productCachedKey,
-            //             response.products as ProductType[]
-            //           );
-            //         }
-            //       },
-            //     });
-            // }
-          });
+          this.allProducts = response as AllProductType;
         })
       )
       .subscribe({
-        next: (response) => {},
+        complete: () => {
+          db.deleteTable(productCachedKey).finally(() => {
+            this.imageService
+              .storePicturesAsBlobFormat(this.allProducts as AllProductType)
+              .then(() => {
+                if (this.allProducts) {
+                  db.bulkPutTableLines(
+                    productCachedKey,
+                    this.allProducts.products as ProductType[]
+                  );
+
+                  this.allProducts = this.allProductList(
+                    this.allProducts.products
+                  );
+                }
+              });
+          });
+        },
+        error: () => {
+          db.productCached
+            .toArray()
+            .then(
+              (response) => (this.allProducts = this.allProductList(response))
+            );
+        },
       });
   }
+
   getImage(picture: Blob | string | undefined) {
     // if image is already stored in localDBPicture, always use it for more performances
     if (picture instanceof Blob) {
@@ -189,19 +185,12 @@ export class ProductsComponent implements OnInit {
       return 'assets/icons/noImage.png';
     }
   }
+
+  allProductList(allProducts: ProductType[]) {
+    return {
+      total: allProducts.length,
+      limit: allProducts.length,
+      products: allProducts,
+    };
+  }
 }
-
-// productCached$ = liveQuery(() => db.productCached.toArray());
-// productCachedList: WritableSignal<ProductType[]> = signal([]);
-// waitingProduct$ = liveQuery(() => db.waitingProduct.toArray());
-// waitingProductList: WritableSignal<ProductType[]> = signal([]);
-
-// async ngOnInit(): Promise<void> {
-//   this.productCached$.subscribe((products) => {
-//     this.productCachedList.set(products);
-//   });
-
-//   this.waitingProduct$.subscribe((products) => {
-//     this.waitingProductList.set(products);
-//   });
-// }
