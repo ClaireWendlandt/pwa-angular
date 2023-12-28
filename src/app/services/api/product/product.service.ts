@@ -32,7 +32,7 @@ export class ProductService {
     );
   }
 
-  getProductListAndNavigate(limit: number, skip: number, currentPage: number) {
+  getProductListAndNavigate(limit: number, skip: number) {
     return this.getProductList(limit, skip);
   }
 

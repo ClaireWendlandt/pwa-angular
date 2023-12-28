@@ -129,53 +129,37 @@ export class ProductsComponent implements OnInit {
     this.productService.navigateToFoo(this.pagination.currentPage);
   }
 
-  public getAllProducts() {
+  public async getAllProducts() {
     const skip =
       this.pagination.currentPage === 1
         ? 0
         : this.pagination.itemsPerPage * (this.pagination.currentPage - 1);
 
     this.productService
-      .getProductListAndNavigate(
-        this.pagination.itemsPerPage,
-        skip,
-        this.pagination.currentPage
-      )
+      .getProductListAndNavigate(this.pagination.itemsPerPage, skip)
       .pipe(
         tap((response) => {
           this.allProducts = response as AllProductType;
         })
       )
       .subscribe({
-        complete: () => {
-          db.deleteTable(productCachedKey).finally(() => {
-            this.imageService
-              .storePicturesAsBlobFormat(this.allProducts as AllProductType)
-              // storePicturesAsBlobFormat worked
-              .then(() => {
-                if (this.allProducts) {
-                  db.bulkPutTableLines(
-                    productCachedKey,
-                    this.allProducts.products as ProductType[]
-                  )
-                    // bulk worked
-                    .then(() => {
-                      this.allProducts = this.allProductList(
-                        this.allProducts!.products as ProductType[]
-                      );
-                    })
-                    // bulk operation didn't worked
-                    .catch(() => {
-                      console.log("bulk operation did'nt worked");
-                    });
-                }
-              })
-              // storePicturesAsBlobFormat didn't work
-              .catch(() => {
-                console.log("storePicturesAsBlobFormat did'nt work");
-              });
-            console.log('lkl');
-          });
+        complete: async () => {
+          await db.deleteTable(productCachedKey);
+
+          await this.imageService.storePicturesAsBlobFormat(
+            this.allProducts as AllProductType
+          );
+          try {
+            await db.bulkPutTableLines(
+              productCachedKey,
+              this.allProducts!.products as ProductType[]
+            );
+            this.allProducts = this.allProductList(
+              this.allProducts!.products as ProductType[]
+            );
+          } catch (e) {
+            console.log("bulk operation didn't work");
+          }
         },
         error: () => {
           db.productCached
