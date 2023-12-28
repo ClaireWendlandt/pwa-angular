@@ -142,7 +142,7 @@ export class ProductsComponent implements OnInit {
         this.pagination.currentPage
       )
       .pipe(
-        tap(async (response) => {
+        tap((response) => {
           this.allProducts = response as AllProductType;
         })
       )
@@ -151,18 +151,30 @@ export class ProductsComponent implements OnInit {
           db.deleteTable(productCachedKey).finally(() => {
             this.imageService
               .storePicturesAsBlobFormat(this.allProducts as AllProductType)
+              // storePicturesAsBlobFormat worked
               .then(() => {
                 if (this.allProducts) {
                   db.bulkPutTableLines(
                     productCachedKey,
                     this.allProducts.products as ProductType[]
-                  );
-
-                  this.allProducts = this.allProductList(
-                    this.allProducts.products
-                  );
+                  )
+                    // bulk worked
+                    .then(() => {
+                      this.allProducts = this.allProductList(
+                        this.allProducts!.products as ProductType[]
+                      );
+                    })
+                    // bulk operation didn't worked
+                    .catch(() => {
+                      console.log("bulk operation did'nt worked");
+                    });
                 }
+              })
+              // storePicturesAsBlobFormat didn't work
+              .catch(() => {
+                console.log("storePicturesAsBlobFormat did'nt work");
               });
+            console.log('lkl');
           });
         },
         error: () => {
